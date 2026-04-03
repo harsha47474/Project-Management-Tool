@@ -1,10 +1,13 @@
 import express from 'express'
-import { otpVerification, registerUser } from '../controllers/auth.controller.js';
+import { login, logout, otpVerification, registerUser } from '../controllers/auth.controller.js';
+import { isAuthenticated } from '../middlewares/isAuthenticated.js';
 
 const router = express.Router();
 
 
 router.post('/register', registerUser);
 router.post('/otp-verification', otpVerification);
+router.post('/login', login)
+router.post('/logout', isAuthenticated, logout)
 
 export default router;

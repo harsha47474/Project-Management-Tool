@@ -94,3 +94,50 @@ export const otpVerification = catchAsyncError(async (req, res, next) => {
         message: "OTP verified successfully",
     });
 });
+
+export const login = catchAsyncError(async (req, res, next) => {
+    const { email, phone, password } = req.body;
+
+    if ((!email && !phone) || !password) {
+        return next(new ErrorHandler("Email or phone and password are required", 400));
+    }
+
+    const verifiedUser = await User.findOne({
+        $or: [
+            ...(email ? [{ email, isVerified: true }] : []),
+            ...(phone ? [{ phone, isVerified: true }] : []),
+        ]
+    }).select("+password");
+
+    if (!verifiedUser) {
+        return next(new ErrorHandler("User not found", 404));
+    }
+
+    const isPasswordMatched = await verifiedUser.comparePassword(password);
+
+    if (!isPasswordMatched) {
+        return next(new ErrorHandler("Invalid Password", 400));
+    }
+
+    generateToken(verifiedUser._id, res);
+
+    return res.status(200).json({
+        success: true,
+        message: "Login successful",
+    });
+});
+
+
+export const logout = catchAsyncError(async (req, res, next) => {
+    res.cookie("jwt", "", {
+        expires: new Date(0),
+        httpOnly: true,
+        sameSite: "strict",
+        secure: process.env.NODE_ENV !== "development"
+    });
+
+    return res.status(200).json({
+        success: true,
+        message: "Logout successful",
+    });
+})
