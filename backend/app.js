@@ -4,6 +4,7 @@ import authRoutes from './src/routes/authRoutes.js';
 import cors from 'cors'
 import cookieParser from 'cookie-parser'
 import { errorMiddleware } from './src/middlewares/error.handler.js';
+import projectRoutes from './src/routes/projectRoutes.js'
 
 import dotenv from 'dotenv'
 dotenv.config();
@@ -24,6 +25,7 @@ app.use(express.urlencoded({extended: true}));
 
 const PORT = process.env.PORT || 5001;
 app.use("/api/auth", authRoutes);
+app.use("api/projects", projectRoutes);
 
 app.get("/", (req, res) => {
     res.send("Hello World!");

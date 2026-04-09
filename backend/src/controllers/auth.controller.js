@@ -6,7 +6,6 @@ import { generateToken } from "../utils/generateToken.js";
 
 // Compiled once at module level
 const phoneRegex = /^\+91[6-9]\d{9}$/;
-
 export const registerUser = catchAsyncError(async (req, res, next) => {
     const { email, name, password, phone, verificationMethod } = req.body;
 
@@ -18,35 +17,41 @@ export const registerUser = catchAsyncError(async (req, res, next) => {
         return next(new ErrorHandler("Invalid Phone Number", 400));
     }
 
-    // Block if a VERIFIED user already exists with this email or phone
+    // Block verified users
     const verifiedUser = await User.findOne({
         $or: [
             { email, isVerified: true },
-            { phone, isVerified: true }
-        ]
+            { phone, isVerified: true },
+        ],
     });
 
     if (verifiedUser) {
         return next(new ErrorHandler("User already exists", 400));
     }
 
-    // If an UNVERIFIED user already exists (e.g. re-attempt), update them instead of creating new
-    // This avoids the duplicate key error on the unique email/phone index
-    let user = await User.findOne({ email, isVerified: false });
+    // Find any unverified user with matching email OR phone
+    let user = await User.findOne({
+        $or: [{ email }, { phone }],
+        isVerified: false,
+    });
 
     if (user) {
-        // Update fields for the retry attempt
-        user.name = name;
-        user.phone = phone;
-        user.password = password;
-        user.verificationMethod = verificationMethod;
+        if (user.email !== email || user.phone !== phone) {
+            // Conflict — e.g. same phone, different email. Wipe and start fresh
+            await User.deleteOne({ _id: user._id });
+            user = new User({ email, name, password, phone, verificationMethod });
+        } else {
+            // Same credentials retry — just update
+            user.name = name;
+            user.password = password;
+            user.verificationMethod = verificationMethod;
+        }
     } else {
-        // First-time registration — create a new user document
         user = new User({ email, name, password, phone, verificationMethod });
     }
 
     const verificationCode = user.generateVerificationCode();
-    await user.save(); // triggers password hashing pre-hook on new users
+    await user.save();
 
     await sendVerificationCode(verificationMethod, email, phone, verificationCode);
 
@@ -55,7 +60,6 @@ export const registerUser = catchAsyncError(async (req, res, next) => {
         message: "Verification code sent successfully",
     });
 });
-
 export const otpVerification = catchAsyncError(async (req, res, next) => {
     const { email, phone, otp } = req.body;
 
