@@ -60,6 +60,8 @@ export const registerUser = catchAsyncError(async (req, res, next) => {
         message: "Verification code sent successfully",
     });
 });
+
+
 export const otpVerification = catchAsyncError(async (req, res, next) => {
     const { email, phone, otp } = req.body;
 
@@ -96,6 +98,7 @@ export const otpVerification = catchAsyncError(async (req, res, next) => {
     res.status(200).json({
         success: true,
         message: "OTP verified successfully",
+        user,
     });
 });
 
@@ -128,6 +131,7 @@ export const login = catchAsyncError(async (req, res, next) => {
     return res.status(200).json({
         success: true,
         message: "Login successful",
+        user: verifiedUser,
     });
 });
 

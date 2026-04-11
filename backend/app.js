@@ -25,7 +25,7 @@ app.use(express.urlencoded({extended: true}));
 
 const PORT = process.env.PORT || 5001;
 app.use("/api/auth", authRoutes);
-app.use("api/projects", projectRoutes);
+app.use("/api/projects", projectRoutes);
 
 app.get("/", (req, res) => {
     res.send("Hello World!");

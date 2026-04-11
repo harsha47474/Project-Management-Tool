@@ -3,7 +3,8 @@ import ErrorHandler from "../middlewares/error.handler.js";
 import Project from "../models/projects.model.js";
 import User from "../models/user.model.js";
 import Member from "../models/member.model.js";
-import { verifyInviteToken } from "../utils/inviteToken.js";
+import { generateInviteToken, verifyInviteToken } from "../utils/inviteToken.js";
+import { sendInviteMail } from "../utils/inviteMail.js";
 
 // create a project
 export const createProject = catchAsyncError(async (req, res, next) => {
@@ -260,10 +261,6 @@ export const removeMember = catchAsyncError(async (req, res, next) => {
     }
 
     const { memberId } = req.params;
-
-    if (!memberId) {
-        return next(new ErrorHandler("Member ID is required", 400));
-    }
 
     if (project.createdBy.toString() === memberId.toString()) {
         return next(new ErrorHandler("Project owner cannot be removed", 400));
