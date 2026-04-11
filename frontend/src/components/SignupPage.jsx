@@ -66,23 +66,14 @@ export default function SignupPage() {
     e.preventDefault();
     setLoading(true);
 
-    try {
-      const res = await axiosInstance.post("/auth/otp-verification", {
-        email,
-        phone,
-        otp,
-      });
-
-      if (res?.data?.success || res?.success) {
-        await checkAuth();
-        toast.success("Registered successfully");
-        navigate("/");
-      }
-    } catch (error) {
-      toast.error("OTP is wrong")
-      console.error("OTP verification error:", error);
-    } finally {
-      setLoading(false);
+    const res = await verifyOtp({
+      email,
+      phone,
+      otp
+    })
+    setLoading(false);
+    if(res?.success){
+      navigate("/");
     }
   };
 

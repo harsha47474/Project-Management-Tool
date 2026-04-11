@@ -1,15 +1,1 @@
-
 @import "tailwindcss";
-
-@layer utilities {
-  .input-field {
-    width: 100%;
-    background: transparent;
-    font-size: 0.875rem;
-    color: white;
-    outline: none;
-  }
-  .input-field::placeholder {
-    color: rgba(255, 255, 255, 0.3);
-  }
-}

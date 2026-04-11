@@ -13,7 +13,7 @@ import { useAuthStore } from "../store/useAuthStore";
 import toast from "react-hot-toast";
  
 export default function LoginPage() {
-  const [loginMethod, setLoginMethod] = useState("email"); // "email" or "phone"
+  const [loginMethod, setLoginMethod] = useState("email");
   const [email, setEmail] = useState("");
   const [phone, setPhone] = useState("");
   const [password, setPassword] = useState("");
@@ -21,7 +21,8 @@ export default function LoginPage() {
   const [loading, setLoading] = useState(false);
  
   const navigate = useNavigate();
-  const { login } = useAuthStore();
+  const { login, authUser } = useAuthStore();
+  console.log(authUser);
  
   const handleLogin = async (e) => {
     e.preventDefault();

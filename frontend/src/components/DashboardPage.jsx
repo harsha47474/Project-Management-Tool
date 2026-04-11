@@ -2,12 +2,11 @@ import React from 'react'
 import { useAuthStore } from '../store/useAuthStore';
 
 const DashboardPage = () => {
-  const { logout } = useAuthStore();
+  const { logout, authUser } = useAuthStore();
+  console.log(authUser);
 
   return (
-    <div>
-      <button onClick={logout}>Logout</button>
-    </div>
+    <></>
   )
 }
 

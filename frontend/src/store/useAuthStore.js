@@ -24,7 +24,7 @@ export const useAuthStore = create((set) => ({
         set({ isSigningUp: true });
 
         try {
-            const response = await axiosInstance.post("/auth/register", {
+            const res = await axiosInstance.post("/auth/register", {
                 name: formData.name,
                 email: formData.email,
                 phone: formData.phone,
@@ -32,14 +32,10 @@ export const useAuthStore = create((set) => ({
                 verificationMethod: formData.verificationMethod,
             });
 
-            console.log("Register success:", response.data);
-
             toast.success("Verification code sent! Please check your email or phone.");
-            return { success: true, data: response.data };
+            return { success: true, data: res.data };
         } catch (err) {
-            console.log("Register error:", err.response?.data || err.message);
-
-            const message = err.response?.data?.message || "Registration failed.";
+            const message = err.res?.data?.message || "Registration failed.";
             toast.error(message);
             return { success: false, message };
         } finally {
@@ -52,7 +48,7 @@ export const useAuthStore = create((set) => ({
         set({ isLoggingIn: true });
         try {
             const res = await axiosInstance.post("/auth/login", formData);
-            set({ authUser: res.data });
+            set({ authUser: res.data.user });
             toast.success("Logged in successfully!");
             return { success: true };
         } catch (err) {
@@ -61,6 +57,19 @@ export const useAuthStore = create((set) => ({
             return { success: false, message };
         } finally {
             set({ isLoggingIn: false });
+        }
+    },
+
+    verifyOtp: async (formData) => {
+        try {
+            const res = await axiosInstance.post("/auth/otp-verification", formData);
+            set({ authUser: res.data.user });
+            toast.success("OTP verified successfully!");
+            return { success: true };
+        } catch (err) {
+            const message = err.response?.data?.message || "OTP verification failed.";
+            toast.error(message);
+            return { success: false, message };
         }
     },
 
