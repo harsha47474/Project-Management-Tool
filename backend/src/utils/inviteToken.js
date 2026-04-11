@@ -6,7 +6,7 @@ export const generateInviteToken = (email, projectId) => {
             email,
             projectId,
         },
-        process.env.JWT_SECRET,
+        process.env.SESSION_SECRET,
         {
             expiresIn: "1d",
         }
@@ -14,5 +14,5 @@ export const generateInviteToken = (email, projectId) => {
 };
 
 export const verifyInviteToken = (token) => {
-    return jwt.verify(token, process.env.JWT_SECRET);
+    return jwt.verify(token, process.env.SESSION_SECRET);
 };

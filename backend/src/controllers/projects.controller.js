@@ -41,7 +41,9 @@ export const showProjects = catchAsyncError(async (req, res, next) => {
             { createdBy: req.user._id },
             { "members.user": req.user._id },
         ],
-    });
+    })
+        .populate("members.user", "name email username")
+        .populate("createdBy", "name email username");
 
     res.status(200).json({
         success: true,
@@ -52,19 +54,26 @@ export const showProjects = catchAsyncError(async (req, res, next) => {
 
 // access a specific project
 export const getProject = catchAsyncError(async (req, res, next) => {
-    const project = await Project.findById(req.params.id);
+    const project = await Project.findById(req.params.id)
+        .populate("members.user", "name email username")
+        .populate("createdBy", "name email username");
 
     if (!project) {
         return next(new ErrorHandler("Project not found", 404));
     }
 
-    const isOwner = project.createdBy.toString() === req.user._id.toString();
+    const isOwner =
+        project.createdBy?._id?.toString() === req.user._id.toString();
+
     const isMember = project.members.some(
-        (member) => member.user.toString() === req.user._id.toString()
+        (member) =>
+            member.user?._id?.toString() === req.user._id.toString()
     );
 
     if (!isOwner && !isMember) {
-        return next(new ErrorHandler("You are not authorized to access this project", 403));
+        return next(
+            new ErrorHandler("You are not authorized to access this project", 403)
+        );
     }
 
     res.status(200).json({
@@ -73,7 +82,6 @@ export const getProject = catchAsyncError(async (req, res, next) => {
         project,
     });
 });
-
 
 // update a project
 export const updateProject = catchAsyncError(async (req, res, next) => {
@@ -177,6 +185,7 @@ export const inviteMember = catchAsyncError(async (req, res, next) => {
     }
 
     const token = generateInviteToken(email, project._id);
+    console.log(token)
 
     const inviteLink = `${process.env.FRONTEND_URL}/accept-invite?token=${token}`;
 
