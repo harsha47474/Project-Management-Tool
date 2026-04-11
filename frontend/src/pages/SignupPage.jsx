@@ -12,7 +12,6 @@ import {
 } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuthStore } from "../store/useAuthStore";
-import { axiosInstance } from "../lib/axios";
 import toast from "react-hot-toast";
 
 export default function SignupPage() {
@@ -28,7 +27,7 @@ export default function SignupPage() {
   const [step, setStep] = useState(1);
 
   const navigate = useNavigate();
-  const { signup, checkAuth } = useAuthStore();
+  const { signup, checkAuth, verifyOtp } = useAuthStore();
 
   const handleSignup = async (e) => {
     e.preventDefault();
@@ -72,7 +71,7 @@ export default function SignupPage() {
       otp
     })
     setLoading(false);
-    if(res?.success){
+    if (res?.success) {
       navigate("/");
     }
   };

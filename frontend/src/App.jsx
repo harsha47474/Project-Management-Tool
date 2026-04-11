@@ -1,15 +1,17 @@
-import React, { useEffect, useTransition } from 'react'
+import React, { useEffect } from 'react'
 import { Loader } from "lucide-react"
 import { Routes, Route, Navigate, useLocation } from 'react-router-dom'
 import Navbar from './components/Navbar'
 import SideBar from './components/SideBar'
-import SignupPage from './components/SignupPage'
-import LoginPage from './components/LoginPage'
-import DashboardPage from './components/DashboardPage'
-import ProjectsPage from './components/ProjectsPage'
-import TaskPage from './components/TaskPage'
-import TeamPage from './components/TeamPage'
-import SettingsPage from './components/SettingsPage'
+import SignupPage from './pages/SignupPage'
+import LoginPage from './pages/LoginPage'
+import DashboardPage from './pages/DashboardPage'
+import ProjectsPage from './pages/ProjectsPage'
+import ProjectDetailsPage from './pages/ProjectDetailsPage'
+import TaskPage from './pages/TaskPage' 
+import TeamPage from './pages/TeamPage'
+import SettingsPage from './pages/SettingsPage'
+import AcceptInvitePage from './pages/AcceptInvitePage'
 
 import { useAuthStore } from './store/useAuthStore'
 
@@ -58,6 +60,10 @@ const App = () => {
               element={authUser ? <ProjectsPage /> : <Navigate to="/login" />}
             />
             <Route
+              path="/projects/:id"
+              element={authUser ? <ProjectDetailsPage /> : <Navigate to="/login" />}
+            />
+            <Route
               path="/tasks"
               element={authUser ? <TaskPage /> : <Navigate to="/login" />}
             />
@@ -68,6 +74,10 @@ const App = () => {
             <Route
               path="/settings"
               element={authUser ? <SettingsPage /> : <Navigate to="/login" />}
+            />
+            <Route
+              path="/accept-invite"
+              element={authUser ? <AcceptInvitePage /> : <Navigate to="/login" />}
             />
           </Routes>
         </main>
