@@ -44,7 +44,7 @@ const AcceptInvitePage = () => {
   }, []);
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-[#000a2b] text-white">
+    <div className="min-h-screen flex items-center justify-center bg-background text-foreground transition-colors duration-300">
       {status === "loading" && <p>Accepting invitation...</p>}
       {status === "success" && <p>✅ Invitation accepted! Redirecting...</p>}
       {status === "error" && <p>❌ Invalid or expired invite link</p>}

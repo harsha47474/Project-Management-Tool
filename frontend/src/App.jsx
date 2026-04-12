@@ -14,15 +14,23 @@ import SettingsPage from './pages/SettingsPage'
 import AcceptInvitePage from './pages/AcceptInvitePage'
 
 import { useAuthStore } from './store/useAuthStore'
-
-
+import { useThemeStore } from './store/useThemeStore'
 
 const App = () => {
   const { authUser, checkAuth, isCheckingAuth } = useAuthStore();
+  const { theme } = useThemeStore();
 
   useEffect(() => {
     checkAuth();
   }, [checkAuth]);
+
+  useEffect(() => {
+    if (theme === 'dark') {
+      document.documentElement.classList.add('dark');
+    } else {
+      document.documentElement.classList.remove('dark');
+    }
+  }, [theme]);
 
   if (isCheckingAuth && !authUser) return (
     <div className="flex items-center justify-center h-screen">
@@ -35,7 +43,7 @@ const App = () => {
   const hideUI = location.pathname === "/login" || location.pathname === "/register";
 
   return (
-    <div className="min-h-screen bg-[#060a1f] text-white">
+    <div className="min-h-screen bg-background text-foreground transition-colors duration-300">
       {!hideUI && <SideBar />}
 
       <div className={`${!hideUI ? "pl-20 md:pl-64 transition-all duration-300" : ""}`}>

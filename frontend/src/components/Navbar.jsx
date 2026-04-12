@@ -7,13 +7,17 @@ import {
   Search,
   User,
   Projector,
-  ChevronDown
+  ChevronDown,
+  Sun,
+  Moon
 } from "lucide-react";
 import { useAuthStore } from "../store/useAuthStore";
+import { useThemeStore } from "../store/useThemeStore";
 
 const Navbar = () => {
   const location = useLocation();
   const { authUser } = useAuthStore();
+  const { theme, toggleTheme } = useThemeStore();
 
   const getPageTitle = (path) => {
     switch (path) {
@@ -27,27 +31,34 @@ const Navbar = () => {
   };
 
   return (
-    <header className="h-20 bg-[#0b1235]/50 backdrop-blur-xl border-b border-white/10 px-8 flex items-center justify-between sticky top-0 z-40">
-      <div className="flex flex-col items-start gap-2">
-        <h1 className="text-2xl font-bold text-white tracking-tight">
+    <header className="h-20 bg-background/80 backdrop-blur-xl border-b border-border px-8 flex items-center justify-between sticky top-0 z-40 transition-colors duration-300">
+      <div className="flex flex-col items-start gap-1">
+        <h1 className="text-xl font-bold text-foreground tracking-tight">
           {getPageTitle(location.pathname).title}
         </h1>
-        <p className="text-md text-white/60">{getPageTitle(location.pathname).description}</p>
+        <p className="text-sm text-muted-foreground">{getPageTitle(location.pathname).description}</p>
       </div>
 
       <div className="flex items-center gap-4">
 
-        <div className="h-8 w-[1px] bg-white/10 mx-2"></div>
+        <button
+          onClick={toggleTheme}
+          className="p-2 rounded-full hover:bg-muted text-muted-foreground hover:text-foreground transition-colors"
+        >
+          {theme === "dark" ? <Sun size={20} /> : <Moon size={20} />}
+        </button>
 
-        <button className="flex items-center gap-3 pl-1 pr-3 py-1 rounded-xl hover:bg-white/5 transition-all group">
+        <div className="h-8 w-[1px] bg-border mx-2"></div>
+
+        <button className="flex items-center gap-3 pl-1 pr-3 py-1 rounded-xl hover:bg-muted transition-all group">
           <div className="h-10 w-10 rounded-lg bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center text-white font-bold shadow-lg shadow-blue-500/20">
             {authUser?.name?.charAt(0) || "U"}
           </div>
           <div className="hidden sm:block text-left">
-            <p className="text-sm font-semibold text-white leading-tight">{authUser?.name || "User"}</p>
-            <p className="text-[11px] text-white/40 font-medium tracking-wider">{authUser?.role || "User"}</p>
+            <p className="text-sm font-semibold text-foreground leading-tight">{authUser?.name || "User"}</p>
+            <p className="text-[11px] text-muted-foreground font-medium tracking-wider">{authUser?.role || "User"}</p>
           </div>
-          <ChevronDown size={14} className="text-white/20 group-hover:text-white transition-colors" />
+          <ChevronDown size={14} className="text-muted-foreground group-hover:text-foreground transition-colors" />
         </button>
       </div>
     </header>

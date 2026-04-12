@@ -39,19 +39,19 @@ const EditProjectModal = ({ open, onClose, project }) => {
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 px-4">
-      <div className="w-full max-w-2xl rounded-3xl border border-white/10 bg-[#111936] p-6 shadow-2xl">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-background/60 px-4">
+      <div className="w-full max-w-2xl rounded-xl border border-border/10 bg-card p-6 shadow-2xl">
         <div className="mb-6 flex items-center justify-between">
           <div>
-            <h2 className="text-2xl font-bold text-white">Edit Project</h2>
-            <p className="mt-1 text-sm text-white/60">
+            <h2 className="text-2xl font-bold text-foreground">Edit Project</h2>
+            <p className="mt-1 text-sm text-foreground/60">
               Update project details here.
             </p>
           </div>
 
           <button
             onClick={onClose}
-            className="rounded-full p-2 text-white/70 transition hover:bg-white/10 hover:text-white"
+            className="rounded-full p-2 text-foreground/70 transition hover:bg-background/10 hover:text-foreground"
           >
             <X size={20} />
           </button>
@@ -63,7 +63,7 @@ const EditProjectModal = ({ open, onClose, project }) => {
             name="name"
             value={formData.name}
             onChange={handleChange}
-            className="w-full rounded-2xl border border-white/10 bg-[#0b122b] px-4 py-3 text-white outline-none focus:border-blue-500"
+            className="w-full rounded-xl border border-border/10 bg-background px-4 py-3 text-foreground outline-none focus:border-background-500"
             required
           />
 
@@ -72,7 +72,7 @@ const EditProjectModal = ({ open, onClose, project }) => {
             value={formData.description}
             onChange={handleChange}
             rows={4}
-            className="w-full rounded-2xl border border-white/10 bg-[#0b122b] px-4 py-3 text-white outline-none focus:border-blue-500"
+            className="w-full rounded-xl border border-border/10 bg-background px-4 py-3 text-foreground outline-none focus:border-background-500"
           />
 
           <div className="grid gap-4 md:grid-cols-2">
@@ -80,7 +80,7 @@ const EditProjectModal = ({ open, onClose, project }) => {
               name="status"
               value={formData.status}
               onChange={handleChange}
-              className="w-full rounded-2xl border border-white/10 bg-[#0b122b] px-4 py-3 text-white outline-none focus:border-blue-500"
+              className="w-full rounded-xl border border-border/10 bg-background px-4 py-3 text-foreground outline-none focus:border-background-500"
             >
               <option value="active">active</option>
               <option value="paused">paused</option>
@@ -92,7 +92,7 @@ const EditProjectModal = ({ open, onClose, project }) => {
               name="githubRepo"
               value={formData.githubRepo}
               onChange={handleChange}
-              className="w-full rounded-2xl border border-white/10 bg-[#0b122b] px-4 py-3 text-white outline-none focus:border-blue-500"
+              className="w-full rounded-xl border border-border/10 bg-background px-4 py-3 text-foreground outline-none focus:border-background-500"
               placeholder="GitHub Repo"
             />
           </div>
@@ -101,7 +101,7 @@ const EditProjectModal = ({ open, onClose, project }) => {
             <button
               type="button"
               onClick={onClose}
-              className="rounded-2xl border border-white/10 px-5 py-3 text-white/80 transition hover:bg-white/10"
+              className="rounded-xl border border-border/10 px-5 py-3 text-foreground/80 transition hover:bg-background/10"
             >
               Cancel
             </button>
@@ -109,7 +109,7 @@ const EditProjectModal = ({ open, onClose, project }) => {
             <button
               type="submit"
               disabled={actionLoading}
-              className="rounded-2xl bg-blue-600 px-5 py-3 font-medium text-white transition hover:bg-blue-700 disabled:opacity-60"
+              className="rounded-xl bg-blue-600 px-5 py-3 font-medium text-white transition hover:bg-blue-700 disabled:opacity-60"
             >
               {actionLoading ? "Saving..." : "Save Changes"}
             </button>

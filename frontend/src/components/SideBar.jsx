@@ -30,7 +30,7 @@ const SideBar = () => {
 
   return (
     <aside
-      className={`fixed top-0 left-0 h-screen bg-[#080d2b] border-r border-white/10 transition-all duration-300 ease-in-out z-50 flex flex-col w-64`}
+      className={`fixed top-0 left-0 h-screen bg-card border-r border-border transition-all duration-300 ease-in-out z-50 flex flex-col w-64`}
     >
       {/* Logo Section */}
       <div className="p-6 flex items-center justify-between">
@@ -38,10 +38,10 @@ const SideBar = () => {
           <div className="h-8 w-8 bg-blue-600 rounded-lg flex items-center justify-center">
             <PlusCircle className="text-white" size={20} />
           </div>
-          <span className="text-white font-bold text-xl tracking-tight">ProFlow</span>
+          <span className="text-foreground font-bold text-lg tracking-tight">ProFlow</span>
         </div>
       </div>
-      <hr className="border-white/10" />
+      <hr className="border-border" />
 
       {/* Navigation Items */}
       <nav className="flex-1 px-4 py-6 space-y-2">
@@ -53,12 +53,12 @@ const SideBar = () => {
               to={item.path}
               className={`flex items-center gap-4 px-3 py-3 rounded-xl transition-all group ${isActive
                   ? "bg-blue-600/10 text-blue-400 border border-blue-600/20"
-                  : "text-white/60 hover:bg-white/5 hover:text-white"
+                  : "text-muted-foreground hover:bg-muted hover:text-foreground"
                 }`}
             >
               <item.icon
                 size={22}
-                className={`flex-shrink-0 transition-colors ${isActive ? "text-blue-400" : "group-hover:text-white"
+                className={`flex-shrink-0 transition-colors ${isActive ? "text-blue-400" : "group-hover:text-foreground"
                   }`}
               />
               <span className="font-medium">{item.label}</span>
@@ -68,14 +68,14 @@ const SideBar = () => {
       </nav>
 
       {/* Bottom Section */}
-      <div className="p-4 border-t border-white/10 space-y-2">
+      <div className="p-4 border-t border-border space-y-2">
         {bottomItems.map((item) => (
           <Link
             key={item.key}
             to={item.path}
-            className="flex items-center gap-4 px-3 py-3 rounded-xl text-white/60 hover:bg-white/5 hover:text-white transition-all group"
+            className="flex items-center gap-4 px-3 py-3 rounded-xl text-muted-foreground hover:bg-muted hover:text-foreground transition-all group"
           >
-            <item.icon size={22} className="flex-shrink-0 group-hover:text-white" />
+            <item.icon size={22} className="flex-shrink-0 group-hover:text-foreground" />
             <span className="font-medium">{item.label}</span>
           </Link>
         ))}

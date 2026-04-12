@@ -8,6 +8,7 @@ import {
     GitBranch,
     Users,
     ListTodo,
+    Loader
 } from "lucide-react";
 import { useProjectStore } from "../store/useProjectStore";
 import EditProjectModal from "../components/Projects/EditProjectModal";
@@ -78,35 +79,45 @@ const ProjectDetailsPage = () => {
 
     if (loading) {
         return (
-            <div className="min-h-screen bg-[#000a2b] p-6 text-white">
-                Loading project...
+            <div className="min-h-screen bg-background p-6 text-foreground">
+                <div className="flex items-center justify-center h-screen">
+                    <Loader className="size-10 animate-spin" />
+                </div>
             </div>
         );
     }
 
     if (!currentProject) {
         return (
-            <div className="min-h-screen bg-[#000a2b] p-6 text-white">
-                Project not found.
+            <div className="min-h-screen bg-background p-6 text-foreground">
+                <div className="flex items-center justify-center h-screen">
+                    <Loader className="size-10 animate-spin" />
+                </div>
             </div>
         );
     }
 
     return (
-        <div className="min-h-screen bg-[#000a2b] p-6 text-white">
+        <div className="min-h-screen bg-background p-6 text-foreground transition-colors duration-300">
+            {openEditModal && (
+                <div className="fixed inset-0 bg-background-900/40 backdrop-blur-sm z-40"></div>
+            )}
+            {openInviteModal && (
+                <div className="fixed inset-0 bg-background-900/40 backdrop-blur-sm z-40"></div>
+            )}
             <button
                 onClick={() => navigate("/projects")}
-                className="mb-6 inline-flex items-center gap-2 rounded-2xl border border-white/10 bg-white/5 px-4 py-3 text-white/80 transition hover:bg-white/10 hover:text-white"
+                className="mb-6 inline-flex items-center gap-2 rounded-xl border border-border bg-card px-4 py-3 text-muted-foreground transition hover:bg-muted hover:text-foreground"
             >
                 <ArrowLeft size={18} />
                 Back to Projects
             </button>
 
-            <div className="rounded-[28px] border border-white/10 bg-[radial-gradient(circle_at_top_left,_rgba(41,98,255,0.18),_transparent_35%),_#020b2d] p-8">
+            <div className="rounded-xl border border-border bg-card shadow-lg p-6 sm:p-8">
                 <div className="flex flex-col gap-6 xl:flex-row xl:items-start xl:justify-between">
                     <div className="max-w-3xl">
                         <div className="mb-4 flex flex-wrap items-center gap-3">
-                            <h1 className="text-4xl font-bold">{currentProject.name}</h1>
+                            <h1 className="text-3xl font-bold">{currentProject.name}</h1>
                             <span
                                 className={`rounded-full px-3 py-1 text-xs font-medium ${getStatusColor(
                                     currentProject.status
@@ -116,7 +127,7 @@ const ProjectDetailsPage = () => {
                             </span>
                         </div>
 
-                        <p className="text-lg leading-8 text-white/75">
+                        <p className="text-base leading-7 text-muted-foreground">
                             {currentProject.description || "No description provided."}
                         </p>
 
@@ -125,7 +136,7 @@ const ProjectDetailsPage = () => {
                                 href={currentProject.githubRepo}
                                 target="_blank"
                                 rel="noreferrer"
-                                className="mt-5 inline-flex items-center gap-2 rounded-2xl border border-white/10 bg-white/5 px-4 py-3 text-white/80 transition hover:bg-white/10 hover:text-white"
+                                className="mt-5 inline-flex items-center gap-2 rounded-xl border border-border bg-muted/50 px-4 py-3 text-foreground transition hover:bg-muted"
                             >
                                 <GitBranch size={18} />
                                 Open GitHub Repository
@@ -136,7 +147,7 @@ const ProjectDetailsPage = () => {
                     <div className="flex flex-wrap gap-3">
                         <button
                             onClick={() => setOpenEditModal(true)}
-                            className="inline-flex items-center gap-2 rounded-2xl bg-blue-600 px-5 py-3 font-medium transition hover:bg-blue-700"
+                            className="inline-flex items-center gap-2 rounded-xl bg-blue-600 px-5 py-3 text-white font-medium transition hover:bg-blue-700"
                         >
                             <Pencil size={18} />
                             Edit
@@ -144,7 +155,7 @@ const ProjectDetailsPage = () => {
 
                         <button
                             onClick={() => setOpenInviteModal(true)}
-                            className="inline-flex items-center gap-2 rounded-2xl border border-white/10 bg-white/5 px-5 py-3 font-medium transition hover:bg-white/10"
+                            className="inline-flex items-center gap-2 rounded-xl border border-border bg-muted/50 px-5 py-3 text-foreground font-medium transition hover:bg-muted"
                         >
                             <UserPlus size={18} />
                             Invite Members
@@ -153,7 +164,7 @@ const ProjectDetailsPage = () => {
                         <button
                             onClick={handleDelete}
                             disabled={actionLoading}
-                            className="inline-flex items-center gap-2 rounded-2xl bg-red-600 px-5 py-3 font-medium transition hover:bg-red-700 disabled:opacity-60"
+                            className="inline-flex items-center gap-2 rounded-xl bg-red-600 px-5 py-3 text-white font-medium transition hover:bg-red-700 disabled:opacity-60"
                         >
                             <Trash2 size={18} />
                             Delete
@@ -164,10 +175,10 @@ const ProjectDetailsPage = () => {
 
 
             <div className="mt-8 grid gap-6 lg:grid-cols-2">
-                <div className="rounded-[28px] border border-white/10 bg-white/5 p-6">
+                <div className="rounded-xl border border-border bg-card p-6">
                     <div className="mb-5 flex items-center gap-3">
                         <Users size={22} className="text-blue-400" />
-                        <h2 className="text-2xl font-semibold">Members</h2>
+                        <h2 className="text-xl font-semibold">Members</h2>
                     </div>
 
                     <div className="space-y-4">
@@ -175,7 +186,7 @@ const ProjectDetailsPage = () => {
                             members.map((member, index) => (
                                 <div
                                     key={member.user?._id || member.user || index}
-                                    className="flex items-center justify-between rounded-2xl border border-white/10 bg-[#07133e] p-4"
+                                    className="flex items-center justify-between rounded-xl border border-border bg-muted/50 p-4"
                                 >
                                     <div className="flex items-center gap-4">
                                         <div className="flex h-12 w-12 items-center justify-center rounded-full bg-gradient-to-br from-violet-500 to-blue-500 font-semibold text-white">
@@ -183,10 +194,10 @@ const ProjectDetailsPage = () => {
                                         </div>
 
                                         <div>
-                                            <p className="font-medium text-white">
+                                            <p className="font-medium text-foreground">
                                                 {member.user?.name || "Project Member"}
                                             </p>
-                                            <p className="text-sm text-white/50">
+                                            <p className="text-sm text-muted-foreground">
                                                 {member.user?.email || "No email available"}
                                             </p>
                                         </div>
@@ -196,35 +207,35 @@ const ProjectDetailsPage = () => {
                                         onClick={() =>
                                             handleRemoveMember(member.user?._id || member.user)
                                         }
-                                        className="rounded-xl border border-red-500/20 bg-red-500/10 px-4 py-2 text-sm text-red-300 transition hover:bg-red-500/20"
+                                        className="rounded-xl border border-red-500/20 bg-red-500/10 px-4 py-2 text-sm text-red-500 transition hover:bg-red-500/20"
                                     >
                                         Remove
                                     </button>
                                 </div>
                             ))
                         ) : (
-                            <p className="text-white/60">No members yet.</p>
+                            <p className="text-muted-foreground">No members yet.</p>
                         )}
                     </div>
                 </div>
 
-                <div className="rounded-[28px] border border-white/10 bg-white/5 p-6">
+                <div className="rounded-xl border border-border bg-card p-6">
                     <div className="mb-5 flex items-center gap-3">
                         <ListTodo size={22} className="text-purple-400" />
-                        <h2 className="text-2xl font-semibold">Assign Tasks</h2>
+                        <h2 className="text-xl font-semibold">Assign Tasks</h2>
                     </div>
 
-                    <div className="rounded-2xl border border-dashed border-white/10 bg-[#07133e] p-6">
-                        <p className="text-white/70">
+                    <div className="rounded-xl border border-dashed border-border bg-muted/50 p-6">
+                        <p className="text-muted-foreground">
                             Assign tasks to specific members from here.
                         </p>
-                        <p className="mt-2 text-sm text-yellow-300/80">
+                        <p className="mt-2 text-sm text-yellow-500">
                             {/* TODO: I will do it later */}
                             This feature will be added later.
                         </p>
 
                         <button
-                            className="mt-5 rounded-2xl border border-white/10 bg-white/5 px-5 py-3 text-white/80 transition hover:bg-white/10"
+                            className="mt-5 rounded-xl border border-border bg-muted px-5 py-3 text-foreground transition hover:bg-muted/80"
                             type="button"
                         >
                             Assign Task

@@ -18,20 +18,20 @@ import { axiosInstance } from "../lib/axios";
 import toast from "react-hot-toast";
 
 const inputClass =
-  "w-full rounded-xl border border-white/10 bg-slate-900/70 px-4 py-3 text-sm text-white outline-none transition placeholder:text-slate-500 focus:border-indigo-500/60 focus:ring-2 focus:ring-indigo-500/20";
+  "w-full rounded-xl border border-border bg-background px-4 py-3 text-sm text-foreground outline-none transition placeholder:text-muted-foreground focus:border-indigo-500/60 focus:ring-2 focus:ring-indigo-500/20";
 
 const cardClass =
-  "rounded-2xl border border-white/10 bg-white/5 backdrop-blur-xl shadow-xl";
+  "rounded-xl border border-border bg-card backdrop-blur-xl shadow-xl";
 
 function InfoRow({ icon: Icon, label, value }) {
   return (
-    <div className="flex items-start gap-3 rounded-xl border border-white/10 bg-slate-900/40 px-4 py-3">
-      <div className="mt-0.5 text-slate-400">
+    <div className="flex items-start gap-3 rounded-xl border border-border bg-muted/50 px-4 py-3">
+      <div className="mt-0.5 text-muted-foreground">
         <Icon className="h-5 w-5" />
       </div>
       <div>
-        <p className="text-xs uppercase tracking-wide text-slate-500">{label}</p>
-        <p className="mt-1 text-sm text-white">{value || "—"}</p>
+        <p className="text-xs uppercase tracking-wide text-muted-foreground">{label}</p>
+        <p className="mt-1 text-sm text-foreground">{value || "—"}</p>
       </div>
     </div>
   );
@@ -138,10 +138,10 @@ export default function SettingsPage() {
 
   if (!authUser) {
     return (
-      <div className="min-h-screen bg-slate-950 px-4 py-10 text-white">
+      <div className="min-h-screen bg-background px-4 py-10 text-foreground transition-colors duration-300">
         <div className="mx-auto max-w-5xl">
           <div className={`${cardClass} flex min-h-[300px] items-center justify-center p-8`}>
-            <div className="flex items-center gap-3 text-slate-300">
+            <div className="flex items-center gap-3 text-muted-foreground">
               <Loader2 className="h-5 w-5 animate-spin" />
               <span>Loading profile...</span>
             </div>
@@ -152,7 +152,7 @@ export default function SettingsPage() {
   }
 
   return (
-    <div className="min-h-screen bg-slate-950 px-4 py-8 text-white sm:px-6 lg:px-8">
+    <div className="min-h-screen bg-background px-4 py-8 text-foreground sm:px-6 lg:px-8 transition-colors duration-300">
       <div className="mx-auto max-w-6xl space-y-6">
         <div className={`${cardClass} overflow-hidden`}>
           <div className="h-32 bg-gradient-to-r from-indigo-600 via-blue-600 to-cyan-500" />
@@ -164,10 +164,10 @@ export default function SettingsPage() {
                     <img
                       src={authUser.avatar.url}
                       alt={authUser.name}
-                      className="h-28 w-28 rounded-3xl border-4 border-slate-950 object-cover shadow-2xl"
+                      className="h-28 w-28 rounded-xl border-4 border-background object-cover shadow-2xl"
                     />
                   ) : (
-                    <div className="flex h-28 w-28 items-center justify-center rounded-3xl border-4 border-slate-950 bg-slate-800 text-3xl font-bold shadow-2xl">
+                    <div className="flex h-28 w-28 items-center justify-center rounded-xl border-4 border-background bg-muted text-3xl font-bold shadow-2xl">
                       {initials}
                     </div>
                   )}
@@ -188,13 +188,13 @@ export default function SettingsPage() {
                 </div>
 
                 <div>
-                  <h1 className="text-3xl font-bold tracking-tight">{authUser.name}</h1>
-                  <p className="mt-1 text-slate-300">{authUser.email}</p>
+                  <h1 className="text-2xl font-bold tracking-tight">{authUser.name}</h1>
+                  <p className="mt-1 text-muted-foreground">{authUser.email}</p>
                   <div className="mt-3 flex flex-wrap items-center gap-3">
-                    <span className="rounded-full border border-emerald-500/30 bg-emerald-500/15 px-3 py-1 text-sm text-emerald-400">
+                    <span className="rounded-full border border-emerald-500/30 bg-emerald-500/15 px-3 py-1 text-sm text-emerald-500">
                       {authUser.isVerified ? "Verified Account" : "Not Verified"}
                     </span>
-                    <span className="rounded-full border border-white/10 bg-white/5 px-3 py-1 text-sm text-slate-300">
+                    <span className="rounded-full border border-border bg-muted px-3 py-1 text-sm text-muted-foreground">
                       {projectCount} Project{projectCount !== 1 ? "s" : ""}
                     </span>
                   </div>
@@ -214,7 +214,7 @@ export default function SettingsPage() {
                   <div className="flex items-center gap-3">
                     <button
                       onClick={handleCancel}
-                      className="inline-flex items-center gap-2 rounded-xl border border-white/10 px-4 py-3 text-sm text-slate-300 transition hover:bg-white/5"
+                      className="inline-flex items-center gap-2 rounded-xl border border-border px-4 py-3 text-sm text-muted-foreground transition hover:bg-muted"
                     >
                       <X className="h-4 w-4" />
                       Cancel
@@ -240,7 +240,7 @@ export default function SettingsPage() {
             <div className="mb-6 flex items-center justify-between">
               <div>
                 <h2 className="text-xl font-semibold">Profile Information</h2>
-                <p className="mt-1 text-sm text-slate-400">Manage your personal account details.</p>
+                <p className="mt-1 text-sm text-muted-foreground">Manage your personal account details.</p>
               </div>
             </div>
 
@@ -254,7 +254,7 @@ export default function SettingsPage() {
             ) : (
               <form id="profile-edit-form" onSubmit={handleSave} className="space-y-5">
                 <div>
-                  <label className="mb-2 block text-sm font-medium text-slate-200">Full Name</label>
+                  <label className="mb-2 block text-sm font-medium text-foreground">Full Name</label>
                   <input
                     type="text"
                     name="name"
@@ -268,7 +268,7 @@ export default function SettingsPage() {
 
                 <div className="grid gap-5 sm:grid-cols-2">
                   <div>
-                    <label className="mb-2 block text-sm font-medium text-slate-200">Email Address</label>
+                    <label className="mb-2 block text-sm font-medium text-foreground">Email Address</label>
                     <input
                       type="email"
                       name="email"
@@ -281,7 +281,7 @@ export default function SettingsPage() {
                   </div>
 
                   <div>
-                    <label className="mb-2 block text-sm font-medium text-slate-200">Phone Number</label>
+                    <label className="mb-2 block text-sm font-medium text-foreground">Phone Number</label>
                     <input
                       type="text"
                       name="phone"
@@ -301,30 +301,30 @@ export default function SettingsPage() {
             <div className={`${cardClass} p-6`}>
               <h2 className="text-xl font-semibold">Account Overview</h2>
               <div className="mt-5 space-y-4">
-                <div className="flex items-center justify-between rounded-xl border border-white/10 bg-slate-900/40 px-4 py-4">
+                <div className="flex items-center justify-between rounded-xl border border-border bg-muted/50 px-4 py-4">
                   <div className="flex items-center gap-3">
-                    <ShieldCheck className="h-5 w-5 text-emerald-400" />
-                    <span className="text-sm text-slate-300">Verification Status</span>
+                    <ShieldCheck className="h-5 w-5 text-emerald-500" />
+                    <span className="text-sm text-muted-foreground">Verification Status</span>
                   </div>
-                  <span className={`text-sm font-medium ${authUser.isVerified ? "text-emerald-400" : "text-yellow-400"}`}>
+                  <span className={`text-sm font-medium ${authUser.isVerified ? "text-emerald-500" : "text-yellow-500"}`}>
                     {authUser.isVerified ? "Verified" : "Pending"}
                   </span>
                 </div>
 
-                <div className="flex items-center justify-between rounded-xl border border-white/10 bg-slate-900/40 px-4 py-4">
+                <div className="flex items-center justify-between rounded-xl border border-border bg-muted/50 px-4 py-4">
                   <div className="flex items-center gap-3">
-                    <FolderKanban className="h-5 w-5 text-indigo-400" />
-                    <span className="text-sm text-slate-300">Projects Joined</span>
+                    <FolderKanban className="h-5 w-5 text-indigo-500" />
+                    <span className="text-sm text-muted-foreground">Projects Joined</span>
                   </div>
-                  <span className="text-sm font-medium text-white">{projectCount}</span>
+                  <span className="text-sm font-medium text-foreground">{projectCount}</span>
                 </div>
 
-                <div className="flex items-center justify-between rounded-xl border border-white/10 bg-slate-900/40 px-4 py-4">
+                <div className="flex items-center justify-between rounded-xl border border-border bg-muted/50 px-4 py-4">
                   <div className="flex items-center gap-3">
-                    <CalendarDays className="h-5 w-5 text-cyan-400" />
-                    <span className="text-sm text-slate-300">Member Since</span>
+                    <CalendarDays className="h-5 w-5 text-cyan-500" />
+                    <span className="text-sm text-muted-foreground">Member Since</span>
                   </div>
-                  <span className="text-sm font-medium text-white">{joinedDate}</span>
+                  <span className="text-sm font-medium text-foreground">{joinedDate}</span>
                 </div>
               </div>
             </div>

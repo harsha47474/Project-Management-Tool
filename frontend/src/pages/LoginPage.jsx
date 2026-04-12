@@ -53,16 +53,16 @@ export default function LoginPage() {
   };
  
   return (
-    <div className="min-h-screen bg-slate-950 text-white flex items-center justify-center px-4 py-10">
-      <div className="w-full max-w-md rounded-2xl border border-white/10 bg-white/5 backdrop-blur-xl shadow-2xl p-6 sm:p-8">
+    <div className="min-h-screen bg-background text-foreground flex items-center justify-center px-4 py-10 transition-colors duration-300">
+      <div className="w-full max-w-md rounded-xl border border-border bg-card shadow-lg p-6 sm:p-8">
  
         {/* Header */}
         <div className="mb-8 text-center">
-          <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-indigo-500/20 border border-indigo-400/20">
+          <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-xl bg-indigo-500/20 border border-indigo-400/20">
             <LogIn className="h-6 w-6 text-indigo-400" />
           </div>
-          <h1 className="text-2xl font-bold">Welcome back</h1>
-          <p className="mt-2 text-sm text-slate-400">
+          <h1 className="text-xl font-bold">Welcome back</h1>
+          <p className="mt-2 text-sm text-muted-foreground">
             Sign in to continue to your account
           </p>
         </div>
@@ -71,7 +71,7 @@ export default function LoginPage() {
  
           {/* Login Method Toggle */}
           <div>
-            <label className="mb-2 block text-sm font-medium text-slate-200">
+            <label className="mb-2 block text-sm font-medium text-foreground">
               Login with
             </label>
             <div className="grid grid-cols-2 gap-3">
@@ -81,7 +81,7 @@ export default function LoginPage() {
                 className={`rounded-xl border px-4 py-3 text-sm font-medium transition ${
                   loginMethod === "email"
                     ? "border-indigo-500 bg-indigo-500/20 text-indigo-300"
-                    : "border-white/10 bg-slate-900/70 text-slate-300"
+                    : "border-border bg-muted/50 text-foreground"
                 }`}
               >
                 Email
@@ -92,7 +92,7 @@ export default function LoginPage() {
                 className={`rounded-xl border px-4 py-3 text-sm font-medium transition ${
                   loginMethod === "phone"
                     ? "border-indigo-500 bg-indigo-500/20 text-indigo-300"
-                    : "border-white/10 bg-slate-900/70 text-slate-300"
+                    : "border-border bg-muted/50 text-foreground"
                 }`}
               >
                 Phone
@@ -103,15 +103,15 @@ export default function LoginPage() {
           {/* Email or Phone Input */}
           {loginMethod === "email" ? (
             <div>
-              <label className="mb-2 block text-sm font-medium text-slate-200">
+              <label className="mb-2 block text-sm font-medium text-foreground">
                 Email
               </label>
-              <div className="flex items-center gap-3 rounded-xl border border-white/10 bg-slate-900/70 px-4 py-3">
-                <Mail className="h-5 w-5 text-slate-400" />
+              <div className="flex items-center gap-3 rounded-xl border border-border bg-muted/50 px-4 py-3">
+                <Mail className="h-5 w-5 text-muted-foreground" />
                 <input
                   type="email"
                   placeholder="Enter your email"
-                  className="w-full bg-transparent text-sm text-white outline-none placeholder:text-slate-500"
+                  className="w-full bg-transparent text-sm text-foreground outline-none placeholder:text-muted-foreground"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   required
@@ -120,15 +120,15 @@ export default function LoginPage() {
             </div>
           ) : (
             <div>
-              <label className="mb-2 block text-sm font-medium text-slate-200">
+              <label className="mb-2 block text-sm font-medium text-foreground">
                 Phone
               </label>
-              <div className="flex items-center gap-3 rounded-xl border border-white/10 bg-slate-900/70 px-4 py-3">
-                <Phone className="h-5 w-5 text-slate-400" />
+              <div className="flex items-center gap-3 rounded-xl border border-border bg-muted/50 px-4 py-3">
+                <Phone className="h-5 w-5 text-muted-foreground" />
                 <input
                   type="tel"
                   placeholder="Enter your phone number"
-                  className="w-full bg-transparent text-sm text-white outline-none placeholder:text-slate-500"
+                  className="w-full bg-transparent text-sm text-foreground outline-none placeholder:text-muted-foreground"
                   value={phone}
                   onChange={(e) => setPhone(e.target.value)}
                   required
@@ -140,7 +140,7 @@ export default function LoginPage() {
           {/* Password */}
           <div>
             <div className="mb-2 flex items-center justify-between">
-              <label className="text-sm font-medium text-slate-200">
+              <label className="text-sm font-medium text-foreground">
                 Password
               </label>
               <Link
@@ -150,12 +150,12 @@ export default function LoginPage() {
                 Forgot password?
               </Link>
             </div>
-            <div className="flex items-center gap-3 rounded-xl border border-white/10 bg-slate-900/70 px-4 py-3">
-              <Lock className="h-5 w-5 text-slate-400" />
+            <div className="flex items-center gap-3 rounded-xl border border-border bg-muted/50 px-4 py-3">
+              <Lock className="h-5 w-5 text-muted-foreground" />
               <input
                 type={showPassword ? "text" : "password"}
                 placeholder="Enter your password"
-                className="w-full bg-transparent text-sm text-white outline-none placeholder:text-slate-500"
+                className="w-full bg-transparent text-sm text-foreground outline-none placeholder:text-muted-foreground"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 required
@@ -163,7 +163,7 @@ export default function LoginPage() {
               <button
                 type="button"
                 onClick={() => setShowPassword(!showPassword)}
-                className="text-slate-400 hover:text-white"
+                className="text-muted-foreground hover:text-foreground"
               >
                 {showPassword ? (
                   <EyeOff className="h-5 w-5" />
@@ -193,7 +193,7 @@ export default function LoginPage() {
             )}
           </button>
  
-          <p className="text-center text-sm text-slate-400">
+          <p className="text-center text-sm text-muted-foreground">
             Don't have an account?{" "}
             <Link to="/register" className="font-medium text-indigo-400 hover:underline">
               Sign up
