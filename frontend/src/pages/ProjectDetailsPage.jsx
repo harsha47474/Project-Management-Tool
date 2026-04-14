@@ -53,11 +53,9 @@ const ProjectDetailsPage = () => {
     useEffect(() => {
         fetchProjectById(id);
     }, [id, fetchProjectById]);
-    console.log(currentProject);
 
 
     const members = useMemo(() => currentProject?.members || [], [currentProject]);
-    console.log(members)
     const handleDelete = async () => {
         const confirmDelete = window.confirm(
             "Are you sure you want to delete this project?"
@@ -72,9 +70,6 @@ const ProjectDetailsPage = () => {
 
     const handleRemoveMember = async (memberId) => {
         const result = await removeMember(id, memberId);
-        if (!result.success) {
-            alert(result.message);
-        }
     };
 
     if (loading) {

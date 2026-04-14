@@ -1,6 +1,7 @@
-import React from "react";
-import { FolderKanban, GitBranch, Users, MoreVertical } from "lucide-react";
+import React, { useState } from "react";
+import { FolderKanban, GitBranch, Users, MoreVertical, X, Delete } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import { useProjectStore } from "../../store/useProjectStore";
 
 const getStatusColor = (status = "active") => {
   switch (status.toLowerCase()) {
@@ -15,7 +16,21 @@ const getStatusColor = (status = "active") => {
 
 const ProjectCard = ({ project }) => {
   const navigate = useNavigate();
+  const [menuOpen, setMenuOpen] = useState(false);
+  const { deleteProject } = useProjectStore();
 
+
+  const handleMoreVerticalClick = (e) => {
+    e.stopPropagation();
+    setMenuOpen(!menuOpen);
+  }
+
+  const handleDelete = async () => {
+    const res = await deleteProject(project._id);
+    if (res.success) {
+      setMenuOpen(false);
+    }
+  }
   return (
     <div
       onClick={() => navigate(`/projects/${project._id}`)}
@@ -37,20 +52,52 @@ const ProjectCard = ({ project }) => {
               >
                 {project.status || "active"}
               </span>
+              <p className="rounded-full px-3 py-1 text-xs bg-red-200/20 ">
+                Owner: {project.createdBy?.name}
+              </p>
             </div>
-
-            <p className="text-xs text-muted-foreground">
-              Key: {project.name?.slice(0, 4)?.toUpperCase()}
-            </p>
           </div>
         </div>
 
-        <button
-          onClick={(e) => e.stopPropagation()}
-          className="rounded-full p-2 text-muted-foreground transition hover:bg-muted hover:text-foreground"
-        >
-          <MoreVertical size={18} />
-        </button>
+        <div className="relative">
+          {menuOpen ? (
+            <button
+              onClick={(e) => { e.stopPropagation(); setMenuOpen(false); }}
+              className="rounded-full p-2 text-muted-foreground transition hover:bg-muted hover:text-foreground"
+            >
+              <X size={18} />
+            </button>
+          ) : (
+            <button
+              onClick={handleMoreVerticalClick}
+              className="rounded-full p-2 text-muted-foreground transition hover:bg-muted hover:text-foreground"
+            >
+              <MoreVertical size={18} />
+            </button>
+          )}
+
+          {menuOpen && (
+            <div
+              className="absolute right-0 top-10 w-48 rounded-lg border border-border bg-card shadow-xl"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <div className="flex flex-col">
+                <button
+                  onClick={() => navigate(`/projects/${project._id}`)}
+                  className="flex items-center gap-2 px-4 py-2 text-left text-sm text-muted-foreground hover:bg-accent hover:text-accent-foreground"
+                >
+                  <FolderKanban size={14} /> View Project
+                </button>
+                <button
+                  onClick={handleDelete}
+                  className="flex items-center gap-2 px-4 py-2 text-left text-sm text-muted-foreground hover:bg-accent hover:text-accent-foreground"
+                >
+                  <Delete size={14} /> Delete Project
+                </button>
+              </div>
+            </div>
+          )}
+        </div>
       </div>
 
       <p className="min-h-[56px] text-sm leading-relaxed text-muted-foreground">

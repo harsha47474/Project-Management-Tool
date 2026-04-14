@@ -52,7 +52,7 @@ const ProjectsPage = () => {
             <FolderPlus size={34} className="text-muted-foreground" />
           </div>
           <h2 className="text-2xl font-semibold text-foreground text-opacity-90">
-            Create more projects to organize your work
+            Create your first project & organize your work
           </h2>
           <button
             onClick={() => setOpenCreateModal(true)}
@@ -62,6 +62,20 @@ const ProjectsPage = () => {
           </button>
         </div>
       )}
+      {projects.length > 0 && (<div className="mt-8 rounded-xl border border-border bg-card px-6 py-16 text-center">
+        <div className="mx-auto mb-6 flex h-20 w-20 items-center justify-center rounded-xl border border-border bg-muted">
+          <FolderPlus size={34} className="text-muted-foreground" />
+        </div>
+        <h2 className="text-2xl font-semibold text-foreground text-opacity-90">
+          Create more projects to organize your work
+        </h2>
+        <button
+          onClick={() => setOpenCreateModal(true)}
+          className="mt-8 rounded-xl border border-border bg-card px-6 py-3 text-base text-foreground transition hover:bg-muted"
+        >
+          Create Project
+        </button>
+      </div>)}
 
       <CreateProjectModal
         open={openCreateModal}

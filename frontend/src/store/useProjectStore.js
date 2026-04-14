@@ -85,6 +85,7 @@ export const useProjectStore = create((set, get) => ({
             set({ actionLoading: false });
         }
     },
+    
     acceptInvite: async (token) => {
         set({ actionLoading: true })
         try {
