@@ -187,7 +187,7 @@ export const inviteMember = catchAsyncError(async (req, res, next) => {
     const token = generateInviteToken(email, project._id);
     console.log(token)
 
-    const inviteLink = `${process.env.FRONTEND_URL}/accept-invite?token=${token}`;
+    const inviteLink = `${process.env.FRONTEND_URL}accept-invite?token=${token}`;
 
     await sendInviteMail(email, project.name, inviteLink);
 
