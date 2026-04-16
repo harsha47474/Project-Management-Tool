@@ -8,8 +8,14 @@ import {
     GitBranch,
     Users,
     ListTodo,
-    Loader
+    Loader,
+    Plus,
 } from "lucide-react";
+import TaskDetailModal from "../components/Tasks/TaskDetailModal";
+import EditTaskModal from "../components/Tasks/EditTaskModal";
+import ReassignMembersModal from "../components/Tasks/ReassignMembersModal";
+import AssignTaskModal from "../components/Tasks/AssignTaskModal";
+import { useTaskStore } from "../store/useTaskStore";
 import { useProjectStore } from "../store/useProjectStore";
 import EditProjectModal from "../components/Projects/EditProjectModal";
 import InviteMemberModal from "../components/Projects/InviteMemberModal";
@@ -24,6 +30,18 @@ const getStatusColor = (status = "active") => {
             return "bg-green-500/15 text-green-400 border border-green-500/20";
     }
 };
+
+const getTaskStatusColor = (status = "todo") => {
+    switch (status) {
+        case "done":
+            return "bg-emerald-500/15 text-emerald-500 border border-emerald-500/20";
+        case "in_progress":
+            return "bg-yellow-500/15 text-yellow-500 border border-yellow-500/20";
+        default:
+            return "bg-slate-500/15 text-slate-500 border border-slate-500/20";
+    }
+};
+
 
 const getInitials = (name = "U") => {
     return name
@@ -47,12 +65,36 @@ const ProjectDetailsPage = () => {
         removeMember,
     } = useProjectStore();
 
+    const {
+        tasks,
+        loading: tasksLoading,
+        fetchProjectTasks,
+        deleteTask,
+        updateTaskStatus,
+    } = useTaskStore();
+
     const [openEditModal, setOpenEditModal] = useState(false);
     const [openInviteModal, setOpenInviteModal] = useState(false);
+    const [openTaskModal, setOpenTaskModal] = useState(false);
+    const [selectedTask, setSelectedTask] = useState(null);
+    const [openTaskDrawer, setOpenTaskDrawer] = useState(false);
+    const [openEditTaskModal, setOpenEditTaskModal] = useState(false);
+    const [openReassignModal, setOpenReassignModal] = useState(false);
+    const [showAllTasks, setShowAllTasks] = useState(false);
+    const [statusFilter, setStatusFilter] = useState("all");
+
+    const filteredTasks =
+        statusFilter === "all"
+            ? tasks
+            : tasks.filter((task) => task.status === statusFilter);
+
+    const visibleTasks = showAllTasks ? filteredTasks : filteredTasks.slice(0, 2);
+    const hasMoreTasks = filteredTasks.length > 2;
 
     useEffect(() => {
         fetchProjectById(id);
-    }, [id, fetchProjectById]);
+        fetchProjectTasks(id);
+    }, [id, fetchProjectById, fetchProjectTasks]);
 
 
     const members = useMemo(() => currentProject?.members || [], [currentProject]);
@@ -70,6 +112,32 @@ const ProjectDetailsPage = () => {
 
     const handleRemoveMember = async (memberId) => {
         const result = await removeMember(id, memberId);
+    };
+
+    const handleDeleteTask = async (taskId) => {
+        const confirmDelete = window.confirm("Are you sure you want to delete this task?");
+        if (!confirmDelete) return;
+
+        await deleteTask(id, taskId);
+    };
+
+    const handleTaskStatusChange = async (taskId, status) => {
+        await updateTaskStatus(id, taskId, status);
+    };
+
+    const handleOpenTaskDrawer = (task) => {
+        setSelectedTask(task);
+        setOpenTaskDrawer(true);
+    };
+
+    const handleOpenEditTask = (task) => {
+        setSelectedTask(task);
+        setOpenEditTaskModal(true);
+    };
+
+    const handleOpenReassign = (task) => {
+        setSelectedTask(task);
+        setOpenReassignModal(true);
     };
 
     if (loading) {
@@ -99,6 +167,9 @@ const ProjectDetailsPage = () => {
             )}
             {openInviteModal && (
                 <div className="fixed inset-0 bg-background-900/40 backdrop-blur-sm z-40"></div>
+            )}
+            {openTaskModal && (
+                <div className="fixed inset-0 z-40 backdrop-blur-sm bg-black/20"></div>
             )}
             <button
                 onClick={() => navigate("/projects")}
@@ -214,27 +285,159 @@ const ProjectDetailsPage = () => {
                     </div>
                 </div>
 
+
                 <div className="rounded-xl border border-border bg-card p-6">
-                    <div className="mb-5 flex items-center gap-3">
-                        <ListTodo size={22} className="text-purple-400" />
-                        <h2 className="text-xl font-semibold">Assign Tasks</h2>
+                    <div className="mb-5 flex items-center justify-between gap-3">
+
+                        <div className="mb-4 flex items-center w-full justify-between gap-3">
+                            <div className='flex item-center gap-3'>
+                                <div className="flex items-center gap-3">
+                                    <ListTodo size={22} className="text-purple-400" />
+                                    <h2 className="text-xl font-semibold">Tasks</h2>
+                                </div>
+
+                                <select
+                                    value={statusFilter}
+                                    onChange={(e) => {
+                                        e.stopPropagation()
+                                        setStatusFilter(e.target.value);
+                                        setShowAllTasks(false);
+                                    }}
+                                    className="rounded-xl border border-border bg-card px-3 py-2 text-sm text-foreground outline-none"
+                                >
+                                    <option value="all">All</option>
+                                    <option value="todo">Todo</option>
+                                    <option value="in_progress">In Progress</option>
+                                    <option value="done">Done</option>
+                                </select>
+                            </div>
+                            <button
+                                onClick={() => setOpenTaskModal(true)}
+                                className="inline-flex items-center gap-2 rounded-xl bg-primary px-4 py-2 text-sm font-medium text-primary-foreground transition hover:opacity-90"
+                            >
+                                <Plus size={16} />
+                                Assign Task
+                            </button>
+                        </div>
                     </div>
 
-                    <div className="rounded-xl border border-dashed border-border bg-muted/50 p-6">
-                        <p className="text-muted-foreground">
-                            Assign tasks to specific members from here.
-                        </p>
-                        <p className="mt-2 text-sm text-yellow-500">
-                            {/* TODO: I will do it later */}
-                            This feature will be added later.
-                        </p>
+                    <div className="space-y-4">
+                        {tasksLoading ? (
+                            <div className="flex items-center justify-center py-10">
+                                <Loader className="size-8 animate-spin" />
+                            </div>
+                        ) : tasks.length > 0 ? (
+                            visibleTasks.map((task) => (
+                                <div
+                                    key={task._id}
+                                    onClick={() => {
+                                        setSelectedTask(task);
+                                        setOpenTaskDrawer(true);
+                                    }}
+                                    className="cursor-pointer rounded-xl border border-border bg-muted/40 p-4 transition hover:bg-muted/70"
+                                >
+                                    <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+                                        <div className="flex-1">
+                                            <div className="mb-2 flex flex-wrap items-center gap-2">
+                                                <h3 className="text-lg font-semibold text-foreground">{task.title}</h3>
 
-                        <button
-                            className="mt-5 rounded-xl border border-border bg-muted px-5 py-3 text-foreground transition hover:bg-muted/80"
-                            type="button"
-                        >
-                            Assign Task
-                        </button>
+                                                <span
+                                                    className={`rounded-full px-3 py-1 text-xs font-medium ${getTaskStatusColor(
+                                                        task.status
+                                                    )}`}
+                                                >
+                                                    {task.status}
+                                                </span>
+                                            </div>
+
+                                            <p className="text-sm leading-6 text-muted-foreground">
+                                                {task.description || "No description provided."}
+                                            </p>
+
+                                            <div className="mt-4 flex flex-wrap gap-2">
+                                                <span className="rounded-full border border-border bg-card px-3 py-1 text-xs text-foreground">
+                                                    Priority: {task.priority || "medium"}
+                                                </span>
+
+                                                {task.dueDate ? (
+                                                    <span className="rounded-full border border-border bg-card px-3 py-1 text-xs text-foreground">
+                                                        Due: {new Date(task.dueDate).toLocaleDateString()}
+                                                    </span>
+                                                ) : null}
+                                            </div>
+
+                                            <div className="mt-4">
+                                                <p className="mb-2 text-sm font-medium text-foreground">Assigned to</p>
+
+                                                <div className="flex flex-wrap gap-2">
+                                                    {task.assignees?.length > 0 ? (
+                                                        task.assignees.map((user) => (
+                                                            <span
+                                                                key={user._id}
+                                                                className="rounded-full border border-border bg-card px-3 py-1 text-xs text-foreground"
+                                                            >
+                                                                {user.name}
+                                                            </span>
+                                                        ))
+                                                    ) : (
+                                                        <span className="text-sm text-muted-foreground">
+                                                            No members assigned
+                                                        </span>
+                                                    )}
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <div className="flex flex-wrap gap-2">
+                                            <select
+                                                value={task.status}
+                                                onClick={(e) => e.stopPropagation()}
+                                                onChange={(e) => handleTaskStatusChange(task._id, e.target.value)}
+                                                className="rounded-xl border border-border bg-card px-3 py-2 text-sm text-foreground outline-none"
+                                            >
+                                                <option value="todo">todo</option>
+                                                <option value="in_progress">in progress</option>
+                                                <option value="done">done</option>
+                                            </select>
+
+                                            <button
+                                                onClick={(e) => {
+                                                    e.stopPropagation();
+                                                    handleDeleteTask(task._id);
+                                                }}
+                                                className="rounded-xl border border-red-500/20 bg-red-500/10 px-4 py-2 text-sm text-red-500 transition hover:bg-red-500/20"
+                                            >
+                                                Delete
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            ))
+                        ) : (
+                            <div className="rounded-xl border border-dashed border-border bg-muted/50 p-6">
+                                <p className="text-muted-foreground">
+                                    No tasks yet. Create your first task and assign it to members.
+                                </p>
+                            </div>
+                        )}
+                        {hasMoreTasks && (
+                            <div className="mt-4 flex justify-center">
+                                <button
+                                    onClick={() => setShowAllTasks((prev) => !prev)}
+                                    className="rounded-xl border border-border bg-card px-4 py-2 text-sm text-foreground transition hover:bg-muted"
+                                >
+                                    {showAllTasks ? "Show Less" : `More (${filteredTasks.length - 2} more)`}
+                                </button>
+                            </div>
+                        )}
+                    </div>
+
+
+                    <div className="mt-5 rounded-xl border border-dashed border-border bg-muted/50 p-4">
+                        <p className="text-sm text-yellow-600 dark:text-yellow-500">
+                            {/* TODO: Task editing and detailed assignment controls will be improved later */}
+                            Task reassignment UI and advanced task management can be added later.
+                        </p>
                     </div>
                 </div>
             </div>
@@ -249,6 +452,38 @@ const ProjectDetailsPage = () => {
                 open={openInviteModal}
                 onClose={() => setOpenInviteModal(false)}
                 projectId={currentProject._id}
+            />
+
+            <AssignTaskModal
+                open={openTaskModal}
+                onClose={() => setOpenTaskModal(false)}
+                projectId={currentProject._id}
+                members={members}
+            />
+
+            <TaskDetailModal
+                open={openTaskDrawer}
+                onClose={() => setOpenTaskDrawer(false)}
+                task={selectedTask}
+                onEdit={handleOpenEditTask}
+                onDelete={handleDeleteTask}
+                onStatusChange={handleTaskStatusChange}
+                onOpenReassign={handleOpenReassign}
+            />
+
+            <EditTaskModal
+                open={openEditTaskModal}
+                onClose={() => setOpenEditTaskModal(false)}
+                projectId={currentProject._id}
+                task={selectedTask}
+            />
+
+            <ReassignMembersModal
+                open={openReassignModal}
+                onClose={() => setOpenReassignModal(false)}
+                projectId={currentProject._id}
+                task={selectedTask}
+                members={members}
             />
         </div>
     );
