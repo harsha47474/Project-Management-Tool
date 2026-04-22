@@ -17,20 +17,26 @@ const getStatusColor = (status = "active") => {
 const ProjectCard = ({ project }) => {
   const navigate = useNavigate();
   const [menuOpen, setMenuOpen] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
   const { deleteProject } = useProjectStore();
-
 
   const handleMoreVerticalClick = (e) => {
     e.stopPropagation();
     setMenuOpen(!menuOpen);
-  }
+  };
 
-  const handleDelete = async () => {
+  const handleDelete = async (e) => {
+    e.stopPropagation();
+    if (isDeleting) return;
+    const confirmDelete = window.confirm("Are you sure you want to delete this project?");
+    if (!confirmDelete) return;
+    setIsDeleting(true);
     const res = await deleteProject(project._id);
     if (res.success) {
       setMenuOpen(false);
     }
-  }
+    setIsDeleting(false);
+  };
   return (
     <div
       onClick={() => navigate(`/projects/${project._id}`)}
@@ -84,15 +90,17 @@ const ProjectCard = ({ project }) => {
               <div className="flex flex-col">
                 <button
                   onClick={() => navigate(`/projects/${project._id}`)}
-                  className="flex items-center gap-2 px-4 py-2 text-left text-sm text-muted-foreground hover:bg-accent hover:text-accent-foreground"
+                  disabled={isDeleting}
+                  className="flex items-center gap-2 px-4 py-2 text-left text-sm text-muted-foreground hover:bg-accent hover:text-accent-foreground disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   <FolderKanban size={14} /> View Project
                 </button>
                 <button
                   onClick={handleDelete}
-                  className="flex items-center gap-2 px-4 py-2 text-left text-sm text-muted-foreground hover:bg-accent hover:text-accent-foreground"
+                  disabled={isDeleting}
+                  className="flex items-center gap-2 px-4 py-2 text-left text-sm text-muted-foreground hover:bg-accent hover:text-accent-foreground disabled:opacity-50 disabled:cursor-not-allowed"
                 >
-                  <Delete size={14} /> Delete Project
+                  <Delete size={14} /> {isDeleting ? "Deleting..." : "Delete Project"}
                 </button>
               </div>
             </div>

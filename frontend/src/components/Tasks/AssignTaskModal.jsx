@@ -30,24 +30,17 @@ const AssignTaskModal = ({ open, onClose, projectId, members = [] }) => {
   const toggleAssignee = (memberId) => {
     setFormData((prev) => {
       const exists = prev.assignees.includes(memberId);
-
-      if (exists) {
-        return {
-          ...prev,
-          assignees: prev.assignees.filter((id) => id !== memberId),
-        };
-      }
-
       return {
         ...prev,
-        assignees: [...prev.assignees, memberId],
+        assignees: exists
+          ? prev.assignees.filter((id) => id !== memberId)
+          : [...prev.assignees, memberId],
       };
     });
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-
     const payload = {
       title: formData.title,
       description: formData.description,
@@ -55,17 +48,9 @@ const AssignTaskModal = ({ open, onClose, projectId, members = [] }) => {
       dueDate: formData.dueDate || null,
       assignees: formData.assignees,
     };
-
     const result = await createTask(projectId, payload);
-
     if (result.success) {
-      setFormData({
-        title: "",
-        description: "",
-        priority: "medium",
-        dueDate: "",
-        assignees: [],
-      });
+      setFormData({ title: "", description: "", priority: "medium", dueDate: "", assignees: [] });
       onClose();
     }
   };
@@ -165,7 +150,7 @@ const AssignTaskModal = ({ open, onClose, projectId, members = [] }) => {
                     <button
                       type="button"
                       key={memberId}
-                      onClick={() => toggleAssignee(memberId)}
+                      onClick={() => toggleAssignee(memberId)} disabled={actionLoading}
                       className={`flex w-full items-center justify-between rounded-xl border px-4 py-3 text-left transition ${
                         checked
                           ? "border-primary bg-primary/10"

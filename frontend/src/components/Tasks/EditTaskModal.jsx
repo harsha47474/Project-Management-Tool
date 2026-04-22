@@ -4,6 +4,7 @@ import { useTaskStore } from "../../store/useTaskStore";
 
 const EditTaskModal = ({ open, onClose, projectId, task }) => {
   const { updateTask, actionLoading } = useTaskStore();
+  const [loading, setLoading] = useState(false);
 
   const [formData, setFormData] = useState({
     title: "",
@@ -34,6 +35,7 @@ const EditTaskModal = ({ open, onClose, projectId, task }) => {
   };
 
   const handleSubmit = async (e) => {
+    setLoading(true);
     e.preventDefault();
 
     const result = await updateTask(projectId, task._id, {
@@ -46,6 +48,7 @@ const EditTaskModal = ({ open, onClose, projectId, task }) => {
     if (result.success) {
       onClose();
     }
+    setLoading(false);
   };
 
   return (
@@ -63,7 +66,7 @@ const EditTaskModal = ({ open, onClose, projectId, task }) => {
           </button>
         </div>
 
-        <form onSubmit={handleSubmit} className="space-y-5">
+        <form onSubmit={handleSubmit} disabled={loading} className="space-y-5">
           <input
             type="text"
             name="title"

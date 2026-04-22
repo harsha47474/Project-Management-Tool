@@ -4,6 +4,7 @@ import { X } from "lucide-react";
 
 const CreateProjectModal = ({ open, onClose }) => {
   const { createProject, actionLoading } = useProjectStore();
+  const [loading, setLoading] = useState(false);
 
   const [formData, setFormData] = useState({
     name: "",
@@ -23,6 +24,7 @@ const CreateProjectModal = ({ open, onClose }) => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setLoading(true);
 
     const result = await createProject(formData);
     if (result.success) {
@@ -34,6 +36,7 @@ const CreateProjectModal = ({ open, onClose }) => {
       });
       onClose();
     }
+    setLoading(false);
   };
 
   return (
@@ -55,7 +58,7 @@ const CreateProjectModal = ({ open, onClose }) => {
           </button>
         </div>
 
-        <form onSubmit={handleSubmit} className="space-y-4">
+        <form onSubmit={handleSubmit} disabled={loading} className="space-y-4">
           <div>
             <label className="mb-2 block text-sm text-foreground/70">
               Project Name

@@ -1,10 +1,11 @@
 import React, { useEffect, useState } from "react";
-import { X, CheckCircle2 } from "lucide-react";
+import { X, CheckCircle2, Loader } from "lucide-react";
 import { useTaskStore } from "../../store/useTaskStore";
 
 const ReassignMembersModal = ({ open, onClose, projectId, task, members = [] }) => {
   const { assignTaskMembers } = useTaskStore();
   const [selectedMembers, setSelectedMembers] = useState([]);
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     if (task?.assignees) {
@@ -24,10 +25,12 @@ const ReassignMembersModal = ({ open, onClose, projectId, task, members = [] }) 
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setLoading(true);
     const result = await assignTaskMembers(projectId, task._id, selectedMembers);
     if (result.success) {
       onClose();
     }
+    setLoading(false);
   };
 
   return (
@@ -48,7 +51,7 @@ const ReassignMembersModal = ({ open, onClose, projectId, task, members = [] }) 
           </button>
         </div>
 
-        <form onSubmit={handleSubmit}>
+        <form onSubmit={handleSubmit} disabled={loading}>
           <div className="max-h-72 space-y-3 overflow-y-auto rounded-xl border border-border bg-muted/30 p-3">
             {members.map((member) => {
               const memberId = member.user?._id || member.user;
@@ -90,8 +93,10 @@ const ReassignMembersModal = ({ open, onClose, projectId, task, members = [] }) 
             </button>
             <button
               type="submit"
-              className="rounded-xl bg-primary px-4 py-3 text-primary-foreground transition hover:opacity-90"
+              disabled={loading}
+              className="inline-flex items-center gap-2 rounded-xl bg-primary px-4 py-3 text-primary-foreground transition hover:opacity-90 disabled:opacity-60 disabled:cursor-not-allowed"
             >
+              {loading ? <Loader size={14} className="animate-spin" /> : null}
               Save Assignees
             </button>
           </div>

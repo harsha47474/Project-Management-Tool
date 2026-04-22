@@ -140,7 +140,12 @@ export const updateTask = catchAsyncError(async (req, res, next) => {
 
   const { title, description, priority, dueDate, assignees } = req.body;
 
-  if (title !== undefined) task.title = title.trim();
+  if (title !== undefined) {
+    if (!title.trim()) {
+      return next(new ErrorHandler("Task title cannot be empty", 400));
+    }
+    task.title = title.trim();
+  }
   if (description !== undefined) task.description = description.trim();
   if (priority !== undefined) task.priority = priority;
   if (dueDate !== undefined) task.dueDate = dueDate || null;

@@ -21,8 +21,7 @@ export default function LoginPage() {
   const [loading, setLoading] = useState(false);
  
   const navigate = useNavigate();
-  const { login, authUser } = useAuthStore();
-  console.log(authUser);
+  const { login } = useAuthStore();
  
   const handleLogin = async (e) => {
     e.preventDefault();

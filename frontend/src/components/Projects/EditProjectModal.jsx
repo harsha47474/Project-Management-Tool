@@ -4,6 +4,7 @@ import { X } from "lucide-react";
 
 const EditProjectModal = ({ open, onClose, project }) => {
   const { updateProject, actionLoading } = useProjectStore();
+  const [loading, setLoading] = useState(false);
 
   const [formData, setFormData] = useState({
     name: "",
@@ -34,8 +35,10 @@ const EditProjectModal = ({ open, onClose, project }) => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setLoading(true);
     const result = await updateProject(project._id, formData);
     if (result.success) onClose();
+    setLoading(false);
   };
 
   return (
@@ -57,7 +60,7 @@ const EditProjectModal = ({ open, onClose, project }) => {
           </button>
         </div>
 
-        <form onSubmit={handleSubmit} className="space-y-4">
+        <form onSubmit={handleSubmit} disabled={loading} className="space-y-4">
           <input
             type="text"
             name="name"

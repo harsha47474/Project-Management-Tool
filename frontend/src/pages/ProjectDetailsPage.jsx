@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useEffect, useMemo, useState, Suspense, lazy } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import {
     ArrowLeft,
@@ -11,14 +11,16 @@ import {
     Loader,
     Plus,
 } from "lucide-react";
-import TaskDetailModal from "../components/Tasks/TaskDetailModal";
-import EditTaskModal from "../components/Tasks/EditTaskModal";
-import ReassignMembersModal from "../components/Tasks/ReassignMembersModal";
-import AssignTaskModal from "../components/Tasks/AssignTaskModal";
 import { useTaskStore } from "../store/useTaskStore";
 import { useProjectStore } from "../store/useProjectStore";
-import EditProjectModal from "../components/Projects/EditProjectModal";
-import InviteMemberModal from "../components/Projects/InviteMemberModal";
+
+// Lazy-load modals — these JS chunks are only downloaded when the user first opens one
+const TaskDetailModal = lazy(() => import("../components/Tasks/TaskDetailModal"));
+const EditTaskModal = lazy(() => import("../components/Tasks/EditTaskModal"));
+const ReassignMembersModal = lazy(() => import("../components/Tasks/ReassignMembersModal"));
+const AssignTaskModal = lazy(() => import("../components/Tasks/AssignTaskModal"));
+const EditProjectModal = lazy(() => import("../components/Projects/EditProjectModal"));
+const InviteMemberModal = lazy(() => import("../components/Projects/InviteMemberModal"));
 
 const getStatusColor = (status = "active") => {
     switch (status.toLowerCase()) {
@@ -42,7 +44,6 @@ const getTaskStatusColor = (status = "todo") => {
     }
 };
 
-
 const getInitials = (name = "U") => {
     return name
         .split(" ")
@@ -51,6 +52,30 @@ const getInitials = (name = "U") => {
         .slice(0, 2)
         .toUpperCase();
 };
+
+// Skeleton for task cards during first load
+const TaskSkeleton = () => (
+    <div className="animate-pulse rounded-xl border border-border bg-muted/40 p-4">
+        <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+            <div className="flex-1 space-y-3">
+                <div className="flex gap-2">
+                    <div className="h-5 w-40 rounded bg-muted" />
+                    <div className="h-5 w-20 rounded-full bg-muted" />
+                </div>
+                <div className="h-3 w-full rounded bg-muted" />
+                <div className="h-3 w-2/3 rounded bg-muted" />
+                <div className="flex gap-2 pt-1">
+                    <div className="h-6 w-24 rounded-full bg-muted" />
+                    <div className="h-6 w-24 rounded-full bg-muted" />
+                </div>
+            </div>
+            <div className="flex gap-2">
+                <div className="h-9 w-28 rounded-xl bg-muted" />
+                <div className="h-9 w-16 rounded-xl bg-muted" />
+            </div>
+        </div>
+    </div>
+);
 
 const ProjectDetailsPage = () => {
     const { id } = useParams();
@@ -68,6 +93,7 @@ const ProjectDetailsPage = () => {
     const {
         tasks,
         loading: tasksLoading,
+        activeTaskIds,
         fetchProjectTasks,
         deleteTask,
         updateTaskStatus,
@@ -96,14 +122,13 @@ const ProjectDetailsPage = () => {
         fetchProjectTasks(id);
     }, [id, fetchProjectById, fetchProjectTasks]);
 
-
     const members = useMemo(() => currentProject?.members || [], [currentProject]);
+
     const handleDelete = async () => {
         const confirmDelete = window.confirm(
             "Are you sure you want to delete this project?"
         );
         if (!confirmDelete) return;
-
         const result = await deleteProject(id);
         if (result.success) {
             navigate("/projects");
@@ -111,23 +136,17 @@ const ProjectDetailsPage = () => {
     };
 
     const handleRemoveMember = async (memberId) => {
-        const result = await removeMember(id, memberId);
+        await removeMember(id, memberId);
     };
 
     const handleDeleteTask = async (taskId) => {
         const confirmDelete = window.confirm("Are you sure you want to delete this task?");
         if (!confirmDelete) return;
-
         await deleteTask(id, taskId);
     };
 
     const handleTaskStatusChange = async (taskId, status) => {
         await updateTaskStatus(id, taskId, status);
-    };
-
-    const handleOpenTaskDrawer = (task) => {
-        setSelectedTask(task);
-        setOpenTaskDrawer(true);
     };
 
     const handleOpenEditTask = (task) => {
@@ -140,11 +159,21 @@ const ProjectDetailsPage = () => {
         setOpenReassignModal(true);
     };
 
+    // Project-level loading skeleton (shown when navigating between projects)
     if (loading) {
         return (
             <div className="min-h-screen bg-background p-6 text-foreground">
-                <div className="flex items-center justify-center h-screen">
-                    <Loader className="size-10 animate-spin" />
+                <div className="animate-pulse space-y-6">
+                    <div className="h-10 w-40 rounded-xl bg-muted" />
+                    <div className="rounded-xl border border-border bg-card p-6 sm:p-8">
+                        <div className="h-8 w-64 rounded bg-muted mb-4" />
+                        <div className="h-4 w-full rounded bg-muted mb-2" />
+                        <div className="h-4 w-3/4 rounded bg-muted" />
+                    </div>
+                    <div className="grid gap-6 lg:grid-cols-2">
+                        <div className="rounded-xl border border-border bg-card p-6 h-48 bg-muted/20" />
+                        <div className="rounded-xl border border-border bg-card p-6 h-48 bg-muted/20" />
+                    </div>
                 </div>
             </div>
         );
@@ -152,9 +181,15 @@ const ProjectDetailsPage = () => {
 
     if (!currentProject) {
         return (
-            <div className="min-h-screen bg-background p-6 text-foreground">
-                <div className="flex items-center justify-center h-screen">
-                    <Loader className="size-10 animate-spin" />
+            <div className="min-h-screen bg-background p-6 text-foreground flex items-center justify-center">
+                <div className="text-center">
+                    <p className="text-lg text-muted-foreground">Project not found.</p>
+                    <button
+                        onClick={() => navigate("/projects")}
+                        className="mt-4 rounded-xl border border-border bg-card px-4 py-2 text-sm text-foreground hover:bg-muted"
+                    >
+                        Back to Projects
+                    </button>
                 </div>
             </div>
         );
@@ -213,7 +248,8 @@ const ProjectDetailsPage = () => {
                     <div className="flex flex-wrap gap-3">
                         <button
                             onClick={() => setOpenEditModal(true)}
-                            className="inline-flex items-center gap-2 rounded-xl bg-blue-600 px-5 py-3 text-white font-medium transition hover:bg-blue-700"
+                            disabled={actionLoading}
+                            className="inline-flex items-center gap-2 rounded-xl bg-blue-600 px-5 py-3 text-white font-medium transition hover:bg-blue-700 disabled:opacity-60 disabled:cursor-not-allowed"
                         >
                             <Pencil size={18} />
                             Edit
@@ -221,7 +257,8 @@ const ProjectDetailsPage = () => {
 
                         <button
                             onClick={() => setOpenInviteModal(true)}
-                            className="inline-flex items-center gap-2 rounded-xl border border-border bg-muted/50 px-5 py-3 text-foreground font-medium transition hover:bg-muted"
+                            disabled={actionLoading}
+                            className="inline-flex items-center gap-2 rounded-xl border border-border bg-muted/50 px-5 py-3 text-foreground font-medium transition hover:bg-muted disabled:opacity-60 disabled:cursor-not-allowed"
                         >
                             <UserPlus size={18} />
                             Invite Members
@@ -230,9 +267,9 @@ const ProjectDetailsPage = () => {
                         <button
                             onClick={handleDelete}
                             disabled={actionLoading}
-                            className="inline-flex items-center gap-2 rounded-xl bg-red-600 px-5 py-3 text-white font-medium transition hover:bg-red-700 disabled:opacity-60"
+                            className="inline-flex items-center gap-2 rounded-xl bg-red-600 px-5 py-3 text-white font-medium transition hover:bg-red-700 disabled:opacity-60 disabled:cursor-not-allowed"
                         >
-                            <Trash2 size={18} />
+                            {actionLoading ? <Loader size={18} className="animate-spin" /> : <Trash2 size={18} />}
                             Delete
                         </button>
                     </div>
@@ -241,6 +278,7 @@ const ProjectDetailsPage = () => {
 
 
             <div className="mt-8 grid gap-6 lg:grid-cols-2">
+                {/* Members Panel */}
                 <div className="rounded-xl border border-border bg-card p-6">
                     <div className="mb-5 flex items-center gap-3">
                         <Users size={22} className="text-blue-400" />
@@ -258,7 +296,6 @@ const ProjectDetailsPage = () => {
                                         <div className="flex h-12 w-12 items-center justify-center rounded-full bg-gradient-to-br from-violet-500 to-blue-500 font-semibold text-white">
                                             {getInitials(member.user?.name || "User")}
                                         </div>
-
                                         <div>
                                             <p className="font-medium text-foreground">
                                                 {member.user?.name || "Project Member"}
@@ -273,7 +310,8 @@ const ProjectDetailsPage = () => {
                                         onClick={() =>
                                             handleRemoveMember(member.user?._id || member.user)
                                         }
-                                        className="rounded-xl border border-red-500/20 bg-red-500/10 px-4 py-2 text-sm text-red-500 transition hover:bg-red-500/20"
+                                        disabled={actionLoading}
+                                        className="rounded-xl border border-red-500/20 bg-red-500/10 px-4 py-2 text-sm text-red-500 transition hover:bg-red-500/20 disabled:opacity-50 disabled:cursor-not-allowed"
                                     >
                                         Remove
                                     </button>
@@ -285,12 +323,11 @@ const ProjectDetailsPage = () => {
                     </div>
                 </div>
 
-
+                {/* Tasks Panel */}
                 <div className="rounded-xl border border-border bg-card p-6">
                     <div className="mb-5 flex items-center justify-between gap-3">
-
                         <div className="mb-4 flex items-center w-full justify-between gap-3">
-                            <div className='flex item-center gap-3'>
+                            <div className="flex items-center gap-3">
                                 <div className="flex items-center gap-3">
                                     <ListTodo size={22} className="text-purple-400" />
                                     <h2 className="text-xl font-semibold">Tasks</h2>
@@ -299,7 +336,7 @@ const ProjectDetailsPage = () => {
                                 <select
                                     value={statusFilter}
                                     onChange={(e) => {
-                                        e.stopPropagation()
+                                        e.stopPropagation();
                                         setStatusFilter(e.target.value);
                                         setShowAllTasks(false);
                                     }}
@@ -322,97 +359,95 @@ const ProjectDetailsPage = () => {
                     </div>
 
                     <div className="space-y-4">
-                        {tasksLoading ? (
-                            <div className="flex items-center justify-center py-10">
-                                <Loader className="size-8 animate-spin" />
-                            </div>
+                        {/* Show skeletons only on first load (no cached tasks yet) */}
+                        {tasksLoading && tasks.length === 0 ? (
+                            <>
+                                <TaskSkeleton />
+                                <TaskSkeleton />
+                            </>
                         ) : tasks.length > 0 ? (
-                            visibleTasks.map((task) => (
-                                <div
-                                    key={task._id}
-                                    onClick={() => {
-                                        setSelectedTask(task);
-                                        setOpenTaskDrawer(true);
-                                    }}
-                                    className="cursor-pointer rounded-xl border border-border bg-muted/40 p-4 transition hover:bg-muted/70"
-                                >
-                                    <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
-                                        <div className="flex-1">
-                                            <div className="mb-2 flex flex-wrap items-center gap-2">
-                                                <h3 className="text-lg font-semibold text-foreground">{task.title}</h3>
-
-                                                <span
-                                                    className={`rounded-full px-3 py-1 text-xs font-medium ${getTaskStatusColor(
-                                                        task.status
-                                                    )}`}
-                                                >
-                                                    {task.status}
-                                                </span>
-                                            </div>
-
-                                            <p className="text-sm leading-6 text-muted-foreground">
-                                                {task.description || "No description provided."}
-                                            </p>
-
-                                            <div className="mt-4 flex flex-wrap gap-2">
-                                                <span className="rounded-full border border-border bg-card px-3 py-1 text-xs text-foreground">
-                                                    Priority: {task.priority || "medium"}
-                                                </span>
-
-                                                {task.dueDate ? (
-                                                    <span className="rounded-full border border-border bg-card px-3 py-1 text-xs text-foreground">
-                                                        Due: {new Date(task.dueDate).toLocaleDateString()}
+                            visibleTasks.map((task) => {
+                                const isTaskBusy = activeTaskIds?.has(task._id);
+                                return (
+                                    <div
+                                        key={task._id}
+                                        onClick={() => {
+                                            setSelectedTask(task);
+                                            setOpenTaskDrawer(true);
+                                        }}
+                                        className={`cursor-pointer rounded-xl border border-border bg-muted/40 p-4 transition hover:bg-muted/70 ${isTaskBusy ? "opacity-60 pointer-events-none" : ""}`}
+                                    >
+                                        <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+                                            <div className="flex-1">
+                                                <div className="mb-2 flex flex-wrap items-center gap-2">
+                                                    <h3 className="text-lg font-semibold text-foreground">{task.title}</h3>
+                                                    <span
+                                                        className={`rounded-full px-3 py-1 text-xs font-medium ${getTaskStatusColor(task.status)}`}
+                                                    >
+                                                        {task.status}
                                                     </span>
-                                                ) : null}
-                                            </div>
+                                                </div>
 
-                                            <div className="mt-4">
-                                                <p className="mb-2 text-sm font-medium text-foreground">Assigned to</p>
+                                                <p className="text-sm leading-6 text-muted-foreground">
+                                                    {task.description || "No description provided."}
+                                                </p>
 
-                                                <div className="flex flex-wrap gap-2">
-                                                    {task.assignees?.length > 0 ? (
-                                                        task.assignees.map((user) => (
-                                                            <span
-                                                                key={user._id}
-                                                                className="rounded-full border border-border bg-card px-3 py-1 text-xs text-foreground"
-                                                            >
-                                                                {user.name}
-                                                            </span>
-                                                        ))
-                                                    ) : (
-                                                        <span className="text-sm text-muted-foreground">
-                                                            No members assigned
+                                                <div className="mt-4 flex flex-wrap gap-2">
+                                                    <span className="rounded-full border border-border bg-card px-3 py-1 text-xs text-foreground">
+                                                        Priority: {task.priority || "medium"}
+                                                    </span>
+                                                    {task.dueDate ? (
+                                                        <span className="rounded-full border border-border bg-card px-3 py-1 text-xs text-foreground">
+                                                            Due: {new Date(task.dueDate).toLocaleDateString()}
                                                         </span>
-                                                    )}
+                                                    ) : null}
+                                                </div>
+
+                                                <div className="mt-4">
+                                                    <p className="mb-2 text-sm font-medium text-foreground">Assigned to</p>
+                                                    <div className="flex flex-wrap gap-2">
+                                                        {task.assignees?.length > 0 ? (
+                                                            task.assignees.map((user) => (
+                                                                <span
+                                                                    key={user._id}
+                                                                    className="rounded-full border border-border bg-card px-3 py-1 text-xs text-foreground"
+                                                                >
+                                                                    {user.name}
+                                                                </span>
+                                                            ))
+                                                        ) : (
+                                                            <span className="text-sm text-muted-foreground">
+                                                                No members assigned
+                                                            </span>
+                                                        )}
+                                                    </div>
                                                 </div>
                                             </div>
-                                        </div>
 
-                                        <div className="flex flex-wrap gap-2">
-                                            <select
-                                                value={task.status}
-                                                onClick={(e) => e.stopPropagation()}
-                                                onChange={(e) => handleTaskStatusChange(task._id, e.target.value)}
-                                                className="rounded-xl border border-border bg-card px-3 py-2 text-sm text-foreground outline-none"
-                                            >
-                                                <option value="todo">todo</option>
-                                                <option value="in_progress">in progress</option>
-                                                <option value="done">done</option>
-                                            </select>
+                                            <div className="flex flex-wrap gap-2" onClick={(e) => e.stopPropagation()}>
+                                                <select
+                                                    value={task.status}
+                                                    disabled={isTaskBusy}
+                                                    onChange={(e) => handleTaskStatusChange(task._id, e.target.value)}
+                                                    className="rounded-xl border border-border bg-card px-3 py-2 text-sm text-foreground outline-none disabled:opacity-50 disabled:cursor-not-allowed"
+                                                >
+                                                    <option value="todo">todo</option>
+                                                    <option value="in_progress">in progress</option>
+                                                    <option value="done">done</option>
+                                                </select>
 
-                                            <button
-                                                onClick={(e) => {
-                                                    e.stopPropagation();
-                                                    handleDeleteTask(task._id);
-                                                }}
-                                                className="rounded-xl border border-red-500/20 bg-red-500/10 px-4 py-2 text-sm text-red-500 transition hover:bg-red-500/20"
-                                            >
-                                                Delete
-                                            </button>
+                                                <button
+                                                    onClick={() => handleDeleteTask(task._id)}
+                                                    disabled={isTaskBusy || actionLoading}
+                                                    className="rounded-xl border border-red-500/20 bg-red-500/10 px-4 py-2 text-sm text-red-500 transition hover:bg-red-500/20 disabled:opacity-50 disabled:cursor-not-allowed"
+                                                >
+                                                    {isTaskBusy ? <Loader size={14} className="animate-spin" /> : "Delete"}
+                                                </button>
+                                            </div>
                                         </div>
                                     </div>
-                                </div>
-                            ))
+                                );
+                            })
                         ) : (
                             <div className="rounded-xl border border-dashed border-border bg-muted/50 p-6">
                                 <p className="text-muted-foreground">
@@ -431,60 +466,62 @@ const ProjectDetailsPage = () => {
                             </div>
                         )}
                     </div>
-
-
-                    <div className="mt-5 rounded-xl border border-dashed border-border bg-muted/50 p-4">
-                        <p className="text-sm text-yellow-600 dark:text-yellow-500">
-                            {/* TODO: Task editing and detailed assignment controls will be improved later */}
-                            Task reassignment UI and advanced task management can be added later.
-                        </p>
-                    </div>
                 </div>
             </div>
 
-            <EditProjectModal
-                open={openEditModal}
-                onClose={() => setOpenEditModal(false)}
-                project={currentProject}
-            />
-
-            <InviteMemberModal
-                open={openInviteModal}
-                onClose={() => setOpenInviteModal(false)}
-                projectId={currentProject._id}
-            />
-
-            <AssignTaskModal
-                open={openTaskModal}
-                onClose={() => setOpenTaskModal(false)}
-                projectId={currentProject._id}
-                members={members}
-            />
-
-            <TaskDetailModal
-                open={openTaskDrawer}
-                onClose={() => setOpenTaskDrawer(false)}
-                task={selectedTask}
-                onEdit={handleOpenEditTask}
-                onDelete={handleDeleteTask}
-                onStatusChange={handleTaskStatusChange}
-                onOpenReassign={handleOpenReassign}
-            />
-
-            <EditTaskModal
-                open={openEditTaskModal}
-                onClose={() => setOpenEditTaskModal(false)}
-                projectId={currentProject._id}
-                task={selectedTask}
-            />
-
-            <ReassignMembersModal
-                open={openReassignModal}
-                onClose={() => setOpenReassignModal(false)}
-                projectId={currentProject._id}
-                task={selectedTask}
-                members={members}
-            />
+            {/* Lazy-loaded modals — only mounted & downloaded when first opened */}
+            <Suspense fallback={null}>
+                {openEditModal && (
+                    <EditProjectModal
+                        open={openEditModal}
+                        onClose={() => setOpenEditModal(false)}
+                        project={currentProject}
+                    />
+                )}
+                {openInviteModal && (
+                    <InviteMemberModal
+                        open={openInviteModal}
+                        onClose={() => setOpenInviteModal(false)}
+                        projectId={currentProject._id}
+                    />
+                )}
+                {openTaskModal && (
+                    <AssignTaskModal
+                        open={openTaskModal}
+                        onClose={() => setOpenTaskModal(false)}
+                        projectId={currentProject._id}
+                        members={members}
+                    />
+                )}
+                {openTaskDrawer && (
+                    <TaskDetailModal
+                        open={openTaskDrawer}
+                        onClose={() => setOpenTaskDrawer(false)}
+                        task={selectedTask}
+                        onEdit={handleOpenEditTask}
+                        onDelete={handleDeleteTask}
+                        onStatusChange={handleTaskStatusChange}
+                        onOpenReassign={handleOpenReassign}
+                    />
+                )}
+                {openEditTaskModal && (
+                    <EditTaskModal
+                        open={openEditTaskModal}
+                        onClose={() => setOpenEditTaskModal(false)}
+                        projectId={currentProject._id}
+                        task={selectedTask}
+                    />
+                )}
+                {openReassignModal && (
+                    <ReassignMembersModal
+                        open={openReassignModal}
+                        onClose={() => setOpenReassignModal(false)}
+                        projectId={currentProject._id}
+                        task={selectedTask}
+                        members={members}
+                    />
+                )}
+            </Suspense>
         </div>
     );
 };

@@ -45,8 +45,6 @@ export default function SignupPage() {
       formattedPhone = "+91" + formattedPhone;
     }
     // else: leave as-is and let backend reject it with a clear error
-    console.log("Sending phone:", formattedPhone);
-    console.log("Regex test:", /^\+91[6-9]\d{9}$/.test(formattedPhone));
     const res = await signup({
       name,
       email,

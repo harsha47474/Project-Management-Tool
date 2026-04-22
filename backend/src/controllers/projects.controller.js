@@ -100,7 +100,10 @@ export const updateProject = catchAsyncError(async (req, res, next) => {
     const { name, description, status, githubRepo } = req.body;
 
     if (name !== undefined) {
-        project.name = name;
+        if (!name.trim()) {
+            return next(new ErrorHandler("Project name cannot be empty", 400));
+        }
+        project.name = name.trim();
     }
 
     if (description !== undefined) {
@@ -117,10 +120,14 @@ export const updateProject = catchAsyncError(async (req, res, next) => {
 
     await project.save();
 
+    const updatedProject = await Project.findById(project._id)
+        .populate("members.user", "name email username")
+        .populate("createdBy", "name email username");
+
     res.status(200).json({
         success: true,
         message: "Project updated successfully",
-        project,
+        project: updatedProject,
     });
 });
 
@@ -185,7 +192,6 @@ export const inviteMember = catchAsyncError(async (req, res, next) => {
     }
 
     const token = generateInviteToken(email, project._id);
-    console.log(token)
 
     const inviteLink = `${process.env.FRONTEND_URL}accept-invite?token=${token}`;
 
@@ -248,10 +254,14 @@ export const acceptInvite = catchAsyncError(async (req, res, next) => {
 
     await project.save();
 
+    const updatedProject = await Project.findById(project._id)
+        .populate("members.user", "name email username")
+        .populate("createdBy", "name email username");
+
     res.status(200).json({
         success: true,
         message: "Invitation accepted successfully",
-        project,
+        project: updatedProject,
     });
 });
 
@@ -270,6 +280,9 @@ export const removeMember = catchAsyncError(async (req, res, next) => {
     }
 
     const { memberId } = req.params;
+    if (memberId.toString() === req.user._id.toString()) {
+        return next(new ErrorHandler("You cannot remove yourself", 400));
+    }
 
     if (project.createdBy.toString() === memberId.toString()) {
         return next(new ErrorHandler("Project owner cannot be removed", 400));
@@ -289,9 +302,13 @@ export const removeMember = catchAsyncError(async (req, res, next) => {
 
     await project.save();
 
+    const updatedProject = await Project.findById(project._id)
+        .populate("members.user", "name email username")
+        .populate("createdBy", "name email username");
+
     res.status(200).json({
         success: true,
         message: "Member removed successfully",
-        project,
+        project: updatedProject,
     });
 });

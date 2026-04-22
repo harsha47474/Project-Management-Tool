@@ -1,5 +1,6 @@
 import React from "react";
-import { X, Pencil, Trash2, Users } from "lucide-react";
+import { X, Pencil, Trash2, Users, Loader } from "lucide-react";
+import { useTaskStore } from "../../store/useTaskStore";
 
 const getTaskStatusColor = (status = "todo") => {
   switch (status) {
@@ -21,7 +22,9 @@ const TaskDetailModal = ({
   onStatusChange,
   onOpenReassign,
 }) => {
+  const { actionLoading, activeTaskIds } = useTaskStore();
   if (!open || !task) return null;
+  const isTaskBusy = activeTaskIds?.has(task._id);
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center px-4">
@@ -112,7 +115,8 @@ const TaskDetailModal = ({
           <div className="flex flex-wrap gap-3 pt-2">
             <button
               onClick={() => onEdit(task)}
-              className="inline-flex items-center gap-2 rounded-xl bg-blue-600 px-4 py-3 text-sm font-medium text-white transition hover:bg-blue-700"
+              disabled={isTaskBusy || actionLoading}
+              className="inline-flex items-center gap-2 rounded-xl bg-blue-600 px-4 py-3 text-sm font-medium text-white transition hover:bg-blue-700 disabled:opacity-60 disabled:cursor-not-allowed"
             >
               <Pencil size={16} />
               Edit Task
@@ -120,7 +124,8 @@ const TaskDetailModal = ({
 
             <button
               onClick={() => onOpenReassign(task)}
-              className="inline-flex items-center gap-2 rounded-xl border border-border bg-muted px-4 py-3 text-sm font-medium text-foreground transition hover:bg-muted/80"
+              disabled={isTaskBusy || actionLoading}
+              className="inline-flex items-center gap-2 rounded-xl border border-border bg-muted px-4 py-3 text-sm font-medium text-foreground transition hover:bg-muted/80 disabled:opacity-60 disabled:cursor-not-allowed"
             >
               <Users size={16} />
               Reassign Members
@@ -128,9 +133,10 @@ const TaskDetailModal = ({
 
             <button
               onClick={() => onDelete(task._id)}
-              className="inline-flex items-center gap-2 rounded-xl bg-red-600 px-4 py-3 text-sm font-medium text-white transition hover:bg-red-700"
+              disabled={isTaskBusy || actionLoading}
+              className="inline-flex items-center gap-2 rounded-xl bg-red-600 px-4 py-3 text-sm font-medium text-white transition hover:bg-red-700 disabled:opacity-60 disabled:cursor-not-allowed"
             >
-              <Trash2 size={16} />
+              {isTaskBusy ? <Loader size={16} className="animate-spin" /> : <Trash2 size={16} />}
               Delete Task
             </button>
           </div>

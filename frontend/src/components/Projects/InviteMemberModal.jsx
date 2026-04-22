@@ -5,16 +5,19 @@ import { useProjectStore } from "../../store/useProjectStore.js";
 const InviteMemberModal = ({ open, onClose, projectId }) => {
   const { inviteMember, actionLoading } = useProjectStore();
   const [email, setEmail] = useState("");
+  const [loading, setLoading] = useState(false);
 
   if (!open) return null;
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setLoading(true);
     const result = await inviteMember(projectId, email);
     if (result.success) {
       setEmail("");
       onClose();
     }
+    setLoading(false);
   };
 
   return (
@@ -36,7 +39,7 @@ const InviteMemberModal = ({ open, onClose, projectId }) => {
           </button>
         </div>
 
-        <form onSubmit={handleSubmit} className="space-y-4">
+        <form onSubmit={handleSubmit} disabled={loading} className="space-y-4">
           <div className="relative">
             <Mail
               size={18}

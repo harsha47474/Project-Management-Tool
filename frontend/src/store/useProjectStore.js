@@ -33,11 +33,14 @@ export const useProjectStore = create((set, get) => ({
     },
 
     fetchProjectById: async (projectId) => {
+        set({ loading: true, currentProject: null });
         try {
             const res = await axiosInstance.get(`/projects/${projectId}`);
             set({ currentProject: res.data.project });
         } catch (error) {
             toast.error(error.response?.data?.message || "Failed to fetch project");
+        } finally {
+            set({ loading: false });
         }
     },
 
