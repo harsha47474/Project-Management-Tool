@@ -20,7 +20,7 @@ const AcceptInvitePage = () => {
 
     const handleAccept = async () => {
       try {
-        // ⚠️ decode token to get projectId (quick trick below)
+        // decode token to get projectId (quick trick below)
         const payload = JSON.parse(atob(token.split(".")[1]));
         const projectId = payload.projectId;
 

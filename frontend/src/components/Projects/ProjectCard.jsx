@@ -40,17 +40,17 @@ const ProjectCard = ({ project }) => {
   return (
     <div
       onClick={() => navigate(`/projects/${project._id}`)}
-      className="group cursor-pointer rounded-xl border border-border bg-card p-6 transition duration-300 hover:-translate-y-1 hover:border-primary/40 hover:shadow-lg hover:shadow-primary/5"
+      className="group cursor-pointer rounded-xl border border-border bg-card p-4 transition duration-300 hover:-translate-y-1 hover:border-primary/40 hover:shadow-lg hover:shadow-primary/5"
     >
       <div className="mb-6 flex items-start justify-between gap-4">
         <div className="flex items-start gap-4">
-          <div className="flex h-16 w-16 items-center justify-center rounded-xl bg-gradient-to-br from-blue-500 to-purple-600 shadow-lg">
-            <FolderKanban className="text-white" size={28} />
+          <div className="flex h-12 w-12 items-center justify-center rounded-lg border border-border bg-muted/30">
+            <FolderKanban className="text-primary" size={20} />
           </div>
 
           <div>
             <div className="mb-2 flex flex-wrap items-center gap-3">
-              <h3 className="text-xl font-bold text-foreground">{project.name}</h3>
+              <h3 className="text-base font-semibold text-foreground">{project.name}</h3>
               <span
                 className={`rounded-full px-3 py-1 text-xs font-medium ${getStatusColor(
                   project.status
@@ -58,7 +58,7 @@ const ProjectCard = ({ project }) => {
               >
                 {project.status || "active"}
               </span>
-              <p className="rounded-full px-3 py-1 text-xs bg-red-200/20 ">
+              <p className="rounded-full px-2 py-0.5 text-[11px] bg-red-200/20 ">
                 Owner: {project.createdBy?.name}
               </p>
             </div>
@@ -107,23 +107,23 @@ const ProjectCard = ({ project }) => {
           )}
         </div>
       </div>
-
-      <p className="min-h-[56px] text-sm leading-relaxed text-muted-foreground">
-        {project.description || "No description added for this project yet."}
+min
+      <p className="min-h-[40px] text-sm leading-relaxed text-muted-foreground">
+        {project.description.slice(0, 150) + " ..." || "No description added for this project yet."}
       </p>
 
-      <div className="mt-6 grid grid-cols-2 gap-4">
-        <div className="rounded-xl border border-border bg-muted/50 p-4">
+      <div className="mt-6 grid grid-cols-2 gap-6">
+        <div className="rounded-xl border border-border bg-muted/50 p-3">
           <div className="mb-2 flex items-center gap-2 text-muted-foreground">
             <Users size={18} />
             <span className="text-sm">Team</span>
           </div>
-          <p className="text-2xl font-bold text-foreground">
+          <p className="text-lg font-semibold text-foreground">
             {project.members?.length || 1}
           </p>
         </div>
 
-        <div className="rounded-xl border border-border bg-muted/50 p-4">
+        <div className="rounded-xl border border-border bg-muted/50 p-3">
           <div className="mb-2 flex items-center gap-2 text-muted-foreground">
             <GitBranch size={18} />
             <span className="text-sm">Repo</span>

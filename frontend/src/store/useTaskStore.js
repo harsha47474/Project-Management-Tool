@@ -6,8 +6,8 @@ export const useTaskStore = create((set, get) => ({
     tasks: [],
     currentTask: null,
     loading: false,
+    pendingTaskFetches: 0,
     actionLoading: false,
-    // Per-task loading IDs - lets us disable individual task buttons without blocking the whole list
     activeTaskIds: new Set(),
 
     _addActiveTask: (taskId) =>
@@ -20,16 +20,33 @@ export const useTaskStore = create((set, get) => ({
         }),
 
     fetchProjectTasks: async (projectId) => {
-        set({ loading: true });
+        set((state) => ({
+            loading: true,
+            pendingTaskFetches: state.pendingTaskFetches + 1,
+        }));
         try {
             const res = await axiosInstance.get(`/projects/${projectId}/tasks`);
-            set({ tasks: res.data.tasks || [] });
+            set((state) => {
+                const newTasks = res.data.tasks || [];
+                const existingIds = new Set(state.tasks.map((task) => task._id));
+
+                return {
+                    tasks: [
+                        ...state.tasks,
+                        ...newTasks.filter((task) => !existingIds.has(task._id)),
+                    ],
+                };
+            });
             return { success: true };
         } catch (error) {
             toast.error(error.response?.data?.message || "Failed to fetch tasks");
             return { success: false };
         } finally {
-            set({ loading: false });
+            // Only flip loading off when the last in-flight request completes
+            set((state) => {
+                const pending = state.pendingTaskFetches - 1;
+                return { pendingTaskFetches: pending, loading: pending > 0 };
+            });
         }
     },
 

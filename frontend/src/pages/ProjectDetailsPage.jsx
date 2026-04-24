@@ -162,7 +162,7 @@ const ProjectDetailsPage = () => {
     // Project-level loading skeleton (shown when navigating between projects)
     if (loading) {
         return (
-            <div className="min-h-screen bg-background p-6 text-foreground">
+            <div className="min-h-screen bg-background px-4 py-4 text-foreground transition-colors duration-300">
                 <div className="animate-pulse space-y-6">
                     <div className="h-10 w-40 rounded-xl bg-muted" />
                     <div className="rounded-xl border border-border bg-card p-6 sm:p-8">
@@ -181,7 +181,7 @@ const ProjectDetailsPage = () => {
 
     if (!currentProject) {
         return (
-            <div className="min-h-screen bg-background p-6 text-foreground flex items-center justify-center">
+            <div className="min-h-screen bg-background px-4 py-4 text-foreground flex items-center justify-center transition-colors duration-300">
                 <div className="text-center">
                     <p className="text-lg text-muted-foreground">Project not found.</p>
                     <button
@@ -196,7 +196,7 @@ const ProjectDetailsPage = () => {
     }
 
     return (
-        <div className="min-h-screen bg-background p-6 text-foreground transition-colors duration-300">
+        <div className="min-h-screen bg-background px-4 py-4 text-foreground transition-colors duration-300">
             {openEditModal && (
                 <div className="fixed inset-0 bg-background-900/40 backdrop-blur-sm z-40"></div>
             )}
@@ -208,17 +208,17 @@ const ProjectDetailsPage = () => {
             )}
             <button
                 onClick={() => navigate("/projects")}
-                className="mb-6 inline-flex items-center gap-2 rounded-xl border border-border bg-card px-4 py-3 text-muted-foreground transition hover:bg-muted hover:text-foreground"
+                className="mb-4 inline-flex items-center gap-2 rounded-lg border border-border bg-card px-3 py-2 text-sm text-muted-foreground transition hover:bg-muted hover:text-foreground"
             >
                 <ArrowLeft size={18} />
                 Back to Projects
             </button>
 
-            <div className="rounded-xl border border-border bg-card shadow-lg p-6 sm:p-8">
+            <div className="rounded-xl border border-border bg-card p-4 sm:p-5">
                 <div className="flex flex-col gap-6 xl:flex-row xl:items-start xl:justify-between">
                     <div className="max-w-3xl">
                         <div className="mb-4 flex flex-wrap items-center gap-3">
-                            <h1 className="text-3xl font-bold">{currentProject.name}</h1>
+                            <h1 className="text-2xl font-semibold">{currentProject.name}</h1>
                             <span
                                 className={`rounded-full px-3 py-1 text-xs font-medium ${getStatusColor(
                                     currentProject.status
@@ -228,7 +228,7 @@ const ProjectDetailsPage = () => {
                             </span>
                         </div>
 
-                        <p className="text-base leading-7 text-muted-foreground">
+                        <p className="text-sm leading-6 text-muted-foreground">
                             {currentProject.description || "No description provided."}
                         </p>
 
@@ -249,7 +249,7 @@ const ProjectDetailsPage = () => {
                         <button
                             onClick={() => setOpenEditModal(true)}
                             disabled={actionLoading}
-                            className="inline-flex items-center gap-2 rounded-xl bg-blue-600 px-5 py-3 text-white font-medium transition hover:bg-blue-700 disabled:opacity-60 disabled:cursor-not-allowed"
+                            className="inline-flex items-center gap-2 rounded-lg bg-blue-600 px-3 py-2 text-sm text-white font-medium transition hover:bg-blue-700"
                         >
                             <Pencil size={18} />
                             Edit
@@ -258,7 +258,7 @@ const ProjectDetailsPage = () => {
                         <button
                             onClick={() => setOpenInviteModal(true)}
                             disabled={actionLoading}
-                            className="inline-flex items-center gap-2 rounded-xl border border-border bg-muted/50 px-5 py-3 text-foreground font-medium transition hover:bg-muted disabled:opacity-60 disabled:cursor-not-allowed"
+                            className="inline-flex items-center gap-2 rounded-lg bg-blue-600 px-3 py-2 text-sm text-white font-medium transition hover:bg-blue-700"
                         >
                             <UserPlus size={18} />
                             Invite Members
@@ -267,7 +267,7 @@ const ProjectDetailsPage = () => {
                         <button
                             onClick={handleDelete}
                             disabled={actionLoading}
-                            className="inline-flex items-center gap-2 rounded-xl bg-red-600 px-5 py-3 text-white font-medium transition hover:bg-red-700 disabled:opacity-60 disabled:cursor-not-allowed"
+                            className="inline-flex items-center gap-2 rounded-lg bg-blue-600 px-3 py-2 text-sm text-white font-medium transition hover:bg-blue-700"
                         >
                             {actionLoading ? <Loader size={18} className="animate-spin" /> : <Trash2 size={18} />}
                             Delete
